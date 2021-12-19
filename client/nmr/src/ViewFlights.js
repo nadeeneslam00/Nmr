@@ -26,7 +26,7 @@ export default function ViewFlights() {
             {flightsArr.length !== 0 ? flightsArr.values.map(flight => {
                 return <div className="flights">
                     <ul >
-                        <li>Flight Number : {flight.From} </li>
+                        <li>Flight Number : {flight.FlightNumber}</li>
                         <li>From : {flight.From} </li>
                         <li>To : {flight.To} </li>
                         <li> Flight Date : {flight.FlightDate} </li>

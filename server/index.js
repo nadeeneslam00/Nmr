@@ -1,13 +1,29 @@
+require('dotenv').config()
+
 const express = require('express');
 
+
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 const app = express();
 const cors = require('cors');
 app.use(cors());
 
+const users = [];
+
 var bodyParser = require('body-parser');
+
+const posts=[
+  {
+    name:"Rana r",
+    title:"Post 1"
+  },
+  {   name:"Rana ",
+  title:"Post 2"
+}
+]
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,7 +38,7 @@ const User = require('./Models/Users.js');
 const CONNECTION_URL = 'mongodb+srv://nadeeneslam:Nadeen1412@cluster0.crnbl.mongodb.net/nmr?retryWrites=true&w=majority';
 const PORT = process.env.PORT || 5000;
 
-
+let refreshTokens =[]
 
 
 app.listen(PORT, () => console.log(`Server running on port: ${PORT}`))
@@ -101,6 +117,27 @@ app.get("/getFlights", (req, res) => {
   })
 });
 
+app.get("/getUsers", authenticateToken, (req, res) => {
+console.log(req.headers)
+ // User.find(Name:user, (err, values) => {
+    //console.log(values)
+   // res.json((User.filter())
+   res.json(posts.filter(post=> post.name === req.user.name))
+
+  
+});
+
+app.post("/users", (req, res) => {
+
+  const user =
+  {
+    name: req.body.name,
+    password: req.body.password
+  }
+  users.push(user)
+  res.status(201).send()
+  console.log(users)
+});
 app.post("/updateFlights", (req, res) => {
 
   const newObj = {}
@@ -197,7 +234,77 @@ app.post("/searchFlights", (req, res) => {
 
 
 
+app.post('/token', (req,res) => {
+  const refreshToken = req.body.token
+  if(refreshToken == null) return res.sendStatus(401)
+  if(!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
+  jwt.verify(refreshToken,""+ process.env.REFRESH_TOKEN_SECERT,(err, user) =>{
+  if(err) return res.sendStatus(403)
+  const accessToken = generateAccessToken({name :user.name})
+  res.json({accessToken : accessToken})
+  }) 
 
+})
+app.post('/login', (req, res) => {
+  //Authenticatio
+
+  User.findOne({ Name: req.body.name }).then(result => {
+    console.log(result)
+    if (result != null) {
+
+      if (result.Password == req.body.password) {
+        console.log("equal")
+        const user = { name: req.body.name };
+        console.log(user)
+        const accessToken = generateAccessToken(user)
+        const refreshToken= jwt.sign(user,""+ process.env.REFRESH_TOKEN_SECERT)
+        refreshTokens.push(refreshToken)
+        console.log("yaayyy")
+        res.json({ accessToken: accessToken, refreshToken: refreshToken })
+        console.log("yaayyy")
+        res.send("succes")
+     
+      } else {
+
+        res.send("not allowed")
+      }
+    }
+    else {
+      res.send("NOT FOUND")
+    }
+ 
+  }).catch(err => {
+
+
+  })
+
+
+
+});
+app.delete('/logout',(req,res)=>{
+  refreshTokens=refreshTokens.filter(token=>token !== req.body.token)
+  res.sendStatus(204)
+})
+function authenticateToken(req,res,next){
+
+
+  const authHeader= req.headers['authorization']
+  const token=authHeader && authHeader.split(' ')[1]
+  console.dir(token)
+  if(token== null)
+  return res.sendStatus(401)
+  jwt.verify(token,""+ process.env.ACCESS_TOKEN_SECERT,(err,user)=>{
+    if(err)return res.sendStatus(403)
+    req.user=user
+    next()
+  })
+}
+
+function generateAccessToken(user){
+  return jwt.sign(user,""+ process.env.ACCESS_TOKEN_SECERT,{expiresIn: '15s'})
+
+  
+}
 
 
 

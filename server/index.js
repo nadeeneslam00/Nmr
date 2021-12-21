@@ -15,40 +15,54 @@ const users = [];
 
 var bodyParser = require('body-parser');
 
-const posts=[
+const posts = [
   {
-    name:"Rana r",
-    title:"Post 1"
+    name: "Rana r",
+    title: "Post 1"
   },
-  {   name:"Rana ",
-  title:"Post 2"
-}
+  {
+    name: "Rana ",
+    title: "Post 2"
+  }
 ]
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
-
+const Reservation = require('./Models/Reservations.js');
 const Flight = require('./Models/Flights.js');
 
 const User = require('./Models/Users.js');
+const tempChosenFlight = require('./Models/TempChosenFlights.js')
 
 
 
 const CONNECTION_URL = 'mongodb+srv://nadeeneslam:Nadeen1412@cluster0.crnbl.mongodb.net/nmr?retryWrites=true&w=majority';
 const PORT = process.env.PORT || 5000;
 
-let refreshTokens =[]
+let refreshTokens = []
 
 
 app.listen(PORT, () => console.log(`Server running on port: ${PORT}`))
 
 mongoose.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(result => console.log("MongoDB is now connected"))
-  .catch(err => console.log(err));
+  .catch(err => console.log(CONNECTION_URL));
 
 
-
+  app.post("/reservationAfterConfirm",authenticateToken, (req, res) => {
+    console.log("HEREEEEEE")
+   console.log(req.user)
+    
+    Reservation.find({ Name : req.user.name }).then(result => {
+      console.log(req.user.name)
+      console.log("HEREEEEEE1")
+      console.log("1")
+      console.log(result)
+      res.json( result)
+      
+    }) 
+  });
 
 
 
@@ -116,15 +130,73 @@ app.get("/getFlights", (req, res) => {
 
   })
 });
+app.post('/UserSearch' , (req,res) => {
+  //console.log(req.headers)
+  console.log(req.body)
+  const searchDetails = {}
+ 
+  if (req.body.From != "")
+    searchDetails.From = req.body.From;
+  if (req.body.To != "")
+    searchDetails.To = req.body.To;
+  if (req.body.FlightDate != null)
+    searchDetails.FlightDate = req.body.FlightDate;
 
-app.get("/getUsers", authenticateToken, (req, res) => {
-console.log(req.headers)
- // User.find(Name:user, (err, values) => {
-    //console.log(values)
-   // res.json((User.filter())
-   res.json(posts.filter(post=> post.name === req.user.name))
+    
+ 
+
+  console.dir(searchDetails)
+
+  Flight.find(searchDetails, (err, result) => {
+    // console.log(result)
+    if (err) {
+    
+      console.log(err)
+    } else {
+    //res.json(result)
+
+    //let arrTime = new Date (req.body.From.ArrivalDate + "T" + req.body.From.ArrivalTime+":00.123Z");
+    //let DepTime = new Date (req.body.From.DepartureDate + "T" + req.body.From.DepartureTime+":00.123Z");
+    
+      var resultFinal = [];
+      console.log(result)
+     for(let i =0 ; i<result.length ; i++){
+       if(req.body.cabinClass === 1){
+        if (result[i].BusinessNumofSeats>=parseInt(req.body.numberofPassengers, 10)){
+          var TripDuration = (parseInt(Math.abs(result[i].ArrivalTime - result[i].DepartureTime )/ (1000*60*60)%24,10)+ "Hours" + parseInt(Math.abs(result[i].ArrivalTime.getTime() - result[i].DepartureTime.getTime())/(1000*60)%60,10)+"Minutes");
+          result[i].TripDuration = TripDuration;
+          console.log(TripDuration);
+          resultFinal.push(result[i])
+
+        }
+          
+       }
+       if(req.body.cabinClass === 2) {
+        if (result[i].EconomyNumofSeats>=parseInt(req.body.numberofPassengers, 10)){
+          var TripDuration = (parseInt(Math.abs(result[i].ArrivalTime - result[i].DepartureTime )/ (1000*60*60)%24,10)+ " Hours " + parseInt(Math.abs(result[i].ArrivalTime.getTime() - result[i].DepartureTime.getTime())/(1000*60)%60,10)+" Minutes");
+          let oneRes = result[i]
+          oneRes.TripDuration = TripDuration;
+          console.log(oneRes);
+          resultFinal.push(oneRes)
+
+        }
+       }
+     }
+     res.json(resultFinal)
+  }
+  });
 
   
+});
+
+app.get("/getUsers", authenticateToken, (req, res) => {
+  console.log(req.headers)
+  // User.find(Name:user, (err, values) => {
+  //console.log(values)
+  // res.json((User.filter())
+  res.json(posts.filter(post => post.name === req.user.name))
+
+
 });
 
 app.post("/users", (req, res) => {
@@ -247,14 +319,14 @@ app.post('/token', (req,res) => {
 })
 app.post('/login', (req, res) => {
   //Authenticatio
-
-  User.findOne({ Name: req.body.name }).then(result => {
+  console.log(req.body);
+  User.findOne({ Name: req.body.username }).then(result => {
     console.log(result)
     if (result != null) {
 
       if (result.Password == req.body.password) {
         console.log("equal")
-        const user = { name: req.body.name };
+        const user = { name: req.body.username };
         console.log(user)
         const accessToken = generateAccessToken(user)
         const refreshToken= jwt.sign(user,""+ process.env.REFRESH_TOKEN_SECERT)
@@ -262,15 +334,19 @@ app.post('/login', (req, res) => {
         console.log("yaayyy")
         res.json({ accessToken: accessToken, refreshToken: refreshToken })
         console.log("yaayyy")
+        console.log(accessToken)
+        res.json("true");
         res.send("succes")
-     
+ 
       } else {
-
+      
         res.send("not allowed")
+ 
       }
     }
     else {
       res.send("NOT FOUND")
+
     }
  
   }).catch(err => {
@@ -281,29 +357,213 @@ app.post('/login', (req, res) => {
 
 
 });
-app.delete('/logout',(req,res)=>{
-  refreshTokens=refreshTokens.filter(token=>token !== req.body.token)
+app.delete('/logout', (req, res) => {
+  refreshTokens = refreshTokens.filter(token => token !== req.body.token)
   res.sendStatus(204)
 })
-function authenticateToken(req,res,next){
+
+app.post("/getBussinessSeats", (req, res) => {
+  console.log("ROUNAAAX")
+  console.log(req.body)
+  console.log(req.body.Id)
+  Flight.findOne({
+    Id: req.body.Id
+  }).then(result => {
+    var TripDuration = (parseInt(Math.abs(result.ArrivalTime - result.DepartureTime )/ (1000*60*60)%24,10)+ "Hours" + parseInt(Math.abs(result.ArrivalTime.getTime() - result.DepartureTime.getTime())/(1000*60)%60,10)+"Minutes");
+    if (req.body.CabinClass == "Business") {
+      
+      const Obj={
+        Id: result.Id,
+        FlightNumber: result.FlightNumber,
+        From:result.From,
+        To:result.To,
+        FlightDate:result.FlightDate,
+        ArrivalTime:result.ArrivalTime,
+        DepartureTime:result.DepartureTime,
+        Seats:result.BusinessSeats,
+        TripDuration: TripDuration
+      }
+      console.log(Obj)
+      res.send(Obj)
+      console.log("PLSSS")
+    }
+    else {
+    
+        const Obj={
+          Id: result.Id,
+          FlightNumber: result.FlightNumber,
+          From:result.From,
+          To:result.To,
+          FlightDate:result.FlightDate,
+          ArrivalTime:result.ArrivalTime,
+          DepartureTime:result.DepartureTime,
+          Seats:result.EconomySeats,
+          TripDuration: TripDuration
+        }
+        console.log(Obj)
+        res.send(Obj)
+        console.log("PLSSS")
+    }
+  }).catch(err => {
+
+  })
+
+});
+app.post("/getEconomySeats", (req, res) => {
+  console.log("ROUNAAAECC")
+  console.log(req.body)
+  console.log(req.body.Id)
+  Flight.findOne({
+    Id: req.body.Id
+  }).then(result => {
+    console.log(result.EconomySeats)
+    res.send(result.EconomySeats)
+    console.log("PLSSS")
+
+  }).catch(err => {
+
+  })
+
+});
+app.post("/getTempChosenFlights", (req, res) => {
+  console.log(req.body)
+  const Obj = {
+  Name: req.user.name,
+    Departure: req.body.Departure,
+
+  }
+
+  tempChosenFlight.findOne(Obj).then(result => {
+    console.log("HERE")
+    console.log(result)
+    res.send(result)
+   
+
+})
+})
+app.post("/postTempChosenFlights", (req, res) => {
+  console.log(req.body)
+  const Obj =[ {
+   Name:user.body.name,
+    Id: req.body.Id,
+    CabinClass: req.body.CabinClass,
+    Departure: req.body.Departure
+  }]
+  tempChosenFlight.insertMany(Obj).then(result => {
+    console.log(result)
+    res.send("success")
+  }).then(err=>{
+
+  })
+ 
+})
+
+app.post("/reserve", (req, res) => {
+  console.log(req.body)
+  const resrvation=[{
+    Name:req.body.Name,
+    From: req.body.From,
+    To:req.body.To,
+    DepartureDate: req.body.DepartureDate,
+    ReturnDate: req.body.ReturnDate,
+    DepDepTime: req.body.DepDepTime,
+    DepArrTime: req.body.DepArrTime,
+    RetDepTime: req.body.RetDepTime,
+    RetArrTime:req.body. RetArrTime,
+    TotalPrice: req.body.TotalPrice,
+    ChosenCabinDeparture: req.body.ChosenCabinDeparture,
+    ChosenSeatDeparture:req.body. ChosenSeatDeparture,
+    ChosenCabinReturn:req.body.ChosenCabinReturn,
+    ChosenSeatReturn:req.body.ChosenSeatReturn
 
 
-  const authHeader= req.headers['authorization']
-  const token=authHeader && authHeader.split(' ')[1]
+}]
+  
+  Reservation.insertMany(resrvation).then(result => {
+    console.log(result)
+    res.send("success")
+  }).then(err=>{
+
+  })
+ 
+})
+
+app.get("/getFlight", (req, res) => {
+
+  Flight.find({ UserId: req.body.UserId }, (err, values) => {
+    console.log(values)
+    res.json({ values });
+
+  })
+})
+app.post("/selectBussinessSeats", (req, res) => {
+
+  console.log("LOOOOOOK")
+  console.log(req.body.selectedBussinessSeats)
+
+
+  Flight.findOne({
+    Id: req.body.Id
+  }).then((result) => {
+    // console.log("LOOKK HERE")
+    // console.log(req.body.Id)
+    //console.log(result)
+    if (req.body.CabinClass == "Business") {
+      for (let i = 0; i < req.body.selectedBussinessSeats.length; i++) {
+        if (req.body.selectedBussinessSeats[i] == "true") {
+          result.BusinessSeats[i] = "true"
+          result.BusinessNumofSeats--
+        }
+        result.save().then((result) => {
+          console.log(result);
+        }).catch((e) => {
+          console.log(e);
+        })
+        
+      }
+    }
+    else {
+      for (let i = 0; i < req.body.selectedBussinessSeats.length; i++) {
+        if (req.body.selectedBussinessSeats[i] == "true") {
+          result.EconomySeats[i] = "true"
+          result.EconomyNumofSeats--
+        }
+        result.save().then((result) => {
+          console.log(result);
+        }).catch((e) => {
+          console.log(e);
+        })
+        
+      }
+    }
+  }).catch(err => {
+
+    // console.log("ERRRRR")
+  })
+
+
+
+});
+
+function authenticateToken(req, res, next) {
+
+
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
   console.dir(token)
-  if(token== null)
-  return res.sendStatus(401)
-  jwt.verify(token,""+ process.env.ACCESS_TOKEN_SECERT,(err,user)=>{
-    if(err)return res.sendStatus(403)
-    req.user=user
+  if (token == null)
+    return res.sendStatus(401)
+  jwt.verify(token, "" + process.env.ACCESS_TOKEN_SECERT, (err, user) => {
+    if (err) return res.sendStatus(403)
+    req.user = user
     next()
   })
 }
 
-function generateAccessToken(user){
-  return jwt.sign(user,""+ process.env.ACCESS_TOKEN_SECERT,{expiresIn: '15s'})
+function generateAccessToken(user) {
+  return jwt.sign(user, "" + process.env.ACCESS_TOKEN_SECERT, { expiresIn: '15s' })
 
-  
+
 }
 
 

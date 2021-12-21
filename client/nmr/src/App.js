@@ -7,7 +7,11 @@ import CreateFlights from "./CreateFlights";
 import UpdateFlights from "./UpdateFlights";
 import DeleteFlights from "./DeleteFlights";
 import SearchFlights from "./SearchFlights";
+import UserSearch from "./UserSearch";
 import Home from "./Home";
+import ViewSeats from "./ViewSeats";
+import Login from "./Login";
+import ReservationAfterConfirm from './ReservationAfterConfirm';
 
 
 
@@ -28,7 +32,10 @@ class App extends Component {
               <Route path="/updateFlights" element={<UpdateFlights />} />
               <Route path="/deleteFlights" element={<DeleteFlights />} />
               <Route path="/searchFlights" element={<SearchFlights />} />
-
+              <Route path="/viewSeats" element={<ViewSeats />} />
+              <Route path="/UserSearch" element = {<UserSearch />} />
+              <Route path="/ReservationAfterConfirm" element={<ReservationAfterConfirm />} />
+              <Route path="/Login" element={<Login />} />
 
             </Routes>
           </Router>

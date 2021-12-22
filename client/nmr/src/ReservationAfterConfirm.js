@@ -8,6 +8,8 @@ import { useState, useEffect } from "react";
 export default function ReservationAfterConfirm() {
     const [reservationsArr, setreservationsArr] = useState([]);
     const [reservation, setreservation] = useState("");
+    const [DepSeats, setDepSeats] = useState("");
+    const [RetSeats, setRetSeats] = useState("");
     const headers = window.localStorage.getItem('token')
     console.log(headers)
     useEffect(() => {
@@ -26,7 +28,8 @@ export default function ReservationAfterConfirm() {
             console.log("i am here")
         })
 
-    }, [])
+ 
+   }, [])
     console.log(reservation)
     console.log("HENNNNN")
  
@@ -50,7 +53,7 @@ export default function ReservationAfterConfirm() {
                             <br/>  
                             Chosen Cabin : {reservation.ChosenCabinDeparture}
                             <br/>
-                            Chosen Seat : {reservation.ChosenSeatDeparture}
+                            Chosen Seat : {reservation.DepSeatsStr}
                            <li> Return Flight : {reservation.To} ==== {reservation.From}  </li>
                              Date : {reservation.ReturnDate} 
                              <br/>
@@ -60,7 +63,7 @@ export default function ReservationAfterConfirm() {
                              <br/>
                              Chosen Cabin : {reservation.ChosenCabinReturn}
                              <br/>
-                             Chosen Seat : {reservation.ChosenSeatReturn}
+                             Chosen Seat : {reservation.RetSeatsStr}
                              <li> Total Price : {reservation.TotalPrice} </li>  
                    
                   

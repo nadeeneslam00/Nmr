@@ -34,7 +34,7 @@ const Flight = require('./Models/Flights.js');
 
 const User = require('./Models/Users.js');
 const tempChosenFlight = require('./Models/TempChosenFlights.js')
-
+var nodemailer = require('nodemailer');
 
 
 const CONNECTION_URL = 'mongodb+srv://nadeeneslam:Nadeen1412@cluster0.crnbl.mongodb.net/nmr?retryWrites=true&w=majority';
@@ -55,6 +55,7 @@ mongoose.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: tr
    console.log(req.user)
     
     Reservation.find({ Name : req.user.name }).then(result => {
+
       console.log(req.user.name)
       console.log("HEREEEEEE1")
       console.log("1")
@@ -305,7 +306,6 @@ app.post("/searchFlights", (req, res) => {
 });
 
 
-
 app.post('/token', (req,res) => {
   const refreshToken = req.body.token
   if(refreshToken == null) return res.sendStatus(401)
@@ -314,9 +314,8 @@ app.post('/token', (req,res) => {
   if(err) return res.sendStatus(403)
   const accessToken = generateAccessToken({name :user.name})
   res.json({accessToken : accessToken})
-  }) 
-
-})
+  })
+});
 app.post('/login', (req, res) => {
   //Authenticatio
   console.log(req.body);
@@ -357,8 +356,8 @@ app.post('/login', (req, res) => {
 
 
 });
-app.delete('/logout', (req, res) => {
-  refreshTokens = refreshTokens.filter(token => token !== req.body.token)
+app.post('/logout', (req, res) => {
+  
   res.sendStatus(204)
 })
 
@@ -370,7 +369,9 @@ app.post("/getBussinessSeats", (req, res) => {
     Id: req.body.Id
   }).then(result => {
     var TripDuration = (parseInt(Math.abs(result.ArrivalTime - result.DepartureTime )/ (1000*60*60)%24,10)+ "Hours" + parseInt(Math.abs(result.ArrivalTime.getTime() - result.DepartureTime.getTime())/(1000*60)%60,10)+"Minutes");
-    if (req.body.CabinClass == "Business") {
+console.log("FINALLLLL")
+    console.log(req.body.CabinClass)
+    if (req.body.CabinClass == "1") {
       
       const Obj={
         Id: result.Id,
@@ -409,24 +410,9 @@ app.post("/getBussinessSeats", (req, res) => {
   })
 
 });
-app.post("/getEconomySeats", (req, res) => {
-  console.log("ROUNAAAECC")
-  console.log(req.body)
-  console.log(req.body.Id)
-  Flight.findOne({
-    Id: req.body.Id
-  }).then(result => {
-    console.log(result.EconomySeats)
-    res.send(result.EconomySeats)
-    console.log("PLSSS")
 
-  }).catch(err => {
-
-  })
-
-});
-app.post("/getTempChosenFlights", (req, res) => {
-  console.log(req.body)
+app.post("/getTempChosenFlights",authenticateToken, (req, res) => {
+  console.log(req.user)
   const Obj = {
   Name: req.user.name,
     Departure: req.body.Departure,
@@ -441,25 +427,41 @@ app.post("/getTempChosenFlights", (req, res) => {
 
 })
 })
-app.post("/postTempChosenFlights", (req, res) => {
-  console.log(req.body)
-  const Obj =[ {
-   Name:user.body.name,
-    Id: req.body.Id,
-    CabinClass: req.body.CabinClass,
-    Departure: req.body.Departure
-  }]
-  tempChosenFlight.insertMany(Obj).then(result => {
-    console.log(result)
-    res.send("success")
-  }).then(err=>{
+app.post("/postTempChosenFlights",authenticateToken, (req, res) => {
 
-  })
+  if(req.user==null){
+    return res.send("null")
+  } else {
+    console.log(req.user)
+    const Obj =[ {
+     Name:req.user.name,
+      Id: req.body.Id,
+      CabinClass: req.body.CabinClass,
+      Departure: req.body.Departure
+    }]
+    tempChosenFlight.insertMany(Obj).then(result => {
+      console.log(result)
+      res.send("success")
+    }).then(err=>{
+  
+    })
+  }
+  
  
 })
 
 app.post("/reserve", (req, res) => {
   console.log(req.body)
+  var str1=""
+  for (let index = 0; index < req.body.ChosenSeatDeparture.length; index++) {
+    if(req.body.ChosenSeatDeparture[index]==="true")
+        str1=str1+" "+index+" "+ " "+","
+   }  
+   var str2=""
+   for (let index = 0; index < req.body.ChosenSeatReturn.length; index++) {
+     if(req.body.ChosenSeatReturn[index]==="true")
+         str2=str2+" "+index+" "+ " "+","
+    }  
   const resrvation=[{
     Name:req.body.Name,
     From: req.body.From,
@@ -474,7 +476,9 @@ app.post("/reserve", (req, res) => {
     ChosenCabinDeparture: req.body.ChosenCabinDeparture,
     ChosenSeatDeparture:req.body. ChosenSeatDeparture,
     ChosenCabinReturn:req.body.ChosenCabinReturn,
-    ChosenSeatReturn:req.body.ChosenSeatReturn
+    ChosenSeatReturn:req.body.ChosenSeatReturn,
+    DepSeatsStr:str1,
+    RetSeatsStr:str2
 
 
 }]
@@ -487,7 +491,127 @@ app.post("/reserve", (req, res) => {
   })
  
 })
+app.post("/viewReservations",authenticateToken, (req, res) => {
+  console.log("HEREEEEEE")
+ console.log(req.user)
+  
+  Reservation.find({ Name : req.user.name }).then(result => {
+    console.log(req.user.name)
+    console.log("HEREEEEEE1")
+    console.log("1")
+    console.log(result)
+    res.json( result);
+  }) 
+});
+app.post("/profile",authenticateToken, (req, res) => {
+  console.log("HEREEEEEE")
+ console.log(req.user)
+  
+  User.find({ Name : req.user.name }).then(result => {
+    console.log(req.user.name)
+    console.log("HEREEEEEE1")
+    console.log("1")
+    console.log(result)
+    res.json( result);
+  }) 
+ 
+});
+app.post("/updateProfile",authenticateToken,  (req, res) => {
 
+
+  const newObj = {}
+  if (req.body.FirstName!= "")
+    newObj.FirstName = req.body.FirstName;
+    console.log(req.body.FirstName);
+   
+  if (req.body.LastName!= "")
+    newObj.LastName = req.body.LastName;
+  if (req.body.Email!= "")
+    newObj.Email = req.body.Email;
+  if (req.body.PassportNo!= "")
+    newObj.PassportNo = req.body.PassportNo;
+  
+  console.log(req.body);
+  console.dir(newObj)
+  console.log("VALUEEE")
+  console.log(req.user.name)
+  User.findOneAndUpdate({
+    Name: (req.user.name)
+  }, newObj).then(result => {
+    //console.log(req.body)
+
+    console.log(newObj)
+    console.log("yaayyy")
+
+
+  }).catch(err => {
+
+    console.log(req.body)
+    console.log(err)
+    console.log("nay")
+
+
+  })
+});
+app.post("/deleteReservation",authenticateToken, (req, res) => {
+  const Obj={}
+ 
+  User.findOne({Name:req.user.name}).then(result=>{
+    console.log("HHHHHHNNNNNM")
+   Obj.mail=result.Email
+   
+    Reservation.findOne({ ReservationNo : req.body._id}).then(result=>{
+      console.log("LLLLLLLLLLNM")
+      console.log(result)
+      Obj.price=result.TotalPrice
+    
+      const transporter = nodemailer.createTransport({
+
+    
+        port: 465,               // true for 465, false for other ports
+        host: "smtp.gmail.com",
+           auth: {
+                user: 'menna.shoulkamy@gmail.com',
+                pass: 'Menna1234',
+             },
+        secure: true,
+        });
+        const mailData = {
+          from: 'menna.shoulkamy@gmail.com',  // sender address
+            to: ''+Obj.mail,   // list of receivers
+            subject: 'Cancelled Booking',
+            text: 'Booking is Cancelled, Total amount to be refunded is'+Obj.price +''
+          };
+          transporter.sendMail(mailData, function (err, info) {
+            if(err)
+              console.log(err)
+            else
+              console.log(info);
+         });
+    }).then(err=>{
+  
+    })
+  }).then(err=>{
+
+  })  
+
+    
+  Reservation.findOneAndDelete({ ReservationNo : (req.body._id) }).then(result => {
+    //console.log(req.body)
+    console.log("yaayyy")
+  
+    
+  }).catch(err => {
+
+    console.log(parseInt(req.body.ReservationNo, 10))
+    console.log(req.body)
+    console.log(err)
+    console.log("nay")
+
+
+  })
+  
+});
 app.get("/getFlight", (req, res) => {
 
   Flight.find({ UserId: req.body.UserId }, (err, values) => {
@@ -496,7 +620,7 @@ app.get("/getFlight", (req, res) => {
 
   })
 })
-app.post("/selectBussinessSeats", (req, res) => {
+app.post("/selectBussinessSeats",authenticateToken, (req, res) => {
 
   console.log("LOOOOOOK")
   console.log(req.body.selectedBussinessSeats)
@@ -508,7 +632,7 @@ app.post("/selectBussinessSeats", (req, res) => {
     // console.log("LOOKK HERE")
     // console.log(req.body.Id)
     //console.log(result)
-    if (req.body.CabinClass == "Business") {
+    if (req.body.CabinClass == "1") {
       for (let i = 0; i < req.body.selectedBussinessSeats.length; i++) {
         if (req.body.selectedBussinessSeats[i] == "true") {
           result.BusinessSeats[i] = "true"
@@ -536,6 +660,13 @@ app.post("/selectBussinessSeats", (req, res) => {
         
       }
     }
+
+    tempChosenFlight.findOneAndDelete({Name: req.user.name,
+    Id:req.body.Id}).then(result=>{
+    }).catch(err=>{
+
+    })
+
   }).catch(err => {
 
     // console.log("ERRRRR")
@@ -544,26 +675,31 @@ app.post("/selectBussinessSeats", (req, res) => {
 
 
 });
+function authenticateToken(req,res,next){
 
-function authenticateToken(req, res, next) {
-
-
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-  console.dir(token)
-  if (token == null)
-    return res.sendStatus(401)
-  jwt.verify(token, "" + process.env.ACCESS_TOKEN_SECERT, (err, user) => {
-    if (err) return res.sendStatus(403)
-    req.user = user
-    next()
-  })
+  // console.log(req);
+  const token= req.headers['token']
+  console.log(token)
+  if(token == "null"){
+    req.user = null;
+    next();
+  } else {
+    jwt.verify(token,process.env.ACCESS_TOKEN_SECERT,(err,user)=>{
+      console.log("NOT AUTHENTICATED");
+      if(err)return res.sendStatus(403)
+      req.user=user
+      console.log();
+      next()
+    })
+  }
+  
+  
 }
 
-function generateAccessToken(user) {
-  return jwt.sign(user, "" + process.env.ACCESS_TOKEN_SECERT, { expiresIn: '15s' })
+function generateAccessToken(user){
+  return jwt.sign(user,""+ process.env.ACCESS_TOKEN_SECERT)
 
-
+  
 }
 
 

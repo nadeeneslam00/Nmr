@@ -73,7 +73,7 @@ export default function Login() {
             if(res.status === 200){
             localStorage.setItem('token', res.data.accessToken);
             console.log(res.data.username)
-            window.location = '/UserSearch'
+            window.location = '/Profile'
             }
             else{
                setOpen(true) 

@@ -15,6 +15,16 @@ const reservationSchema = new Schema({
     required:true,
 
   },
+  RetSeatsStr:{
+    type: String,
+    required:true,
+
+  },
+  DepSeatsStr:{
+    type: String,
+    required:true,
+
+  },
   DepartureDate:{
     type: Date,
     required:true,

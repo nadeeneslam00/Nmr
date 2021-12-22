@@ -118,20 +118,29 @@ export default function UserSearch() {
         axios.post('http://localhost:5000/postTempChosenFlights', DepFlightObj,{
             headers: {
               token: headers,
-            },}).then(() => {
-            console.log("yaaayy")
-       
-    
-        }).catch(err => {
-            console.log(err)
-            console.log("i am here")
-
-    })
-
-    axios.post('http://localhost:5000/postTempChosenFlights', RetFlightObj,{
+            },}).then((res) => {
+                console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+                console.log(res.data)
+                if(res.data === null){
+                    window.location='/Login'
+                } else {
+                    axios.post('http://localhost:5000/postTempChosenFlights', RetFlightObj,{
         headers: {
           token: headers,
-        },}).then(() => {
+        },}).then((res) => {
+            console.log("yaaayy")
+            if(res.status === 401){
+                window.location='/Login'
+            }
+    
+        }).catch(err => {
+            console.log(err)
+            console.log("i am here")
+
+    })
+
+    window.location='/ViewSeats'
+                }
             console.log("yaaayy")
        
     
@@ -140,7 +149,9 @@ export default function UserSearch() {
             console.log("i am here")
 
     })
-    window.location='/Login'
+
+    
+
 }
 
 
@@ -367,7 +378,7 @@ export default function UserSearch() {
                      <FormControlLabel control={<Checkbox defaultUnChecked  onChange={(e) => setDepFlight(flight.Id)} />} label="Select Flight" />
                     </FormGroup>
                         </CardActions>
-                        <h1>{DepFlight}</h1>
+                        
                     </Card>
 
 

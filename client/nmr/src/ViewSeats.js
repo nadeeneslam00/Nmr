@@ -120,7 +120,10 @@ export default function ViewSeats() {
             console.log("i am here")
         })
 
-        axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsDep).then(() => {
+        axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsDep,{
+            headers: {
+              token: headers,
+            },}).then(() => {
             console.log("yaaayy")
 
 
@@ -129,7 +132,10 @@ export default function ViewSeats() {
             console.log("i am here")
         })
         console.log(selectedSeatsRet)
-        axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsRet).then(() => {
+        axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsRet,{
+            headers: {
+              token: headers,
+            },}).then(() => {
             console.log("yaaayy")
 
 

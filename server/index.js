@@ -316,14 +316,56 @@ app.post('/token', (req,res) => {
   res.json({accessToken : accessToken})
   })
 });
+
+app.post('/signup', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const name = req.body.name;
+  console.log('METHOD ACTIVE')
+  try {
+    let user = await User.findOne({
+      email,
+    });
+    if (user) {
+      return res.json({
+        statusCode: 0,
+        message: 'email already exists, please sign in',
+      })
+    } else {
+      var newUser = new User({
+        username: email,
+        Name: name,
+        password: bcrypt.hashSync(password, 10),
+        isAdmin: false,
+      })
+      newUser.save(function (err, user) {
+        if (err) {
+          return (res.status = (400).send({
+            message: err,
+          }))
+        } else {
+          return res.json(user)
+        }
+      })
+    }
+  } catch (err) {
+    if (err) {
+      return res.json({
+        statusCode: 1,
+        error: 'error caught ',
+      })
+    }
+  }
+});
+
 app.post('/login', (req, res) => {
   //Authenticatio
-  console.log(req.body);
+  // console.log(req.body);
   User.findOne({ Name: req.body.username }).then(result => {
-    console.log(result)
+    var result2 = bcrypt.compareSync(req.body.password, result.password)
     if (result != null) {
 
-      if (result.Password == req.body.password) {
+      if (result2) {
         console.log("equal")
         const user = { name: req.body.username };
         console.log(user)

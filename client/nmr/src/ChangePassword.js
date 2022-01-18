@@ -38,17 +38,18 @@ const options = ['Create a merge commit', 'Squash and merge', 'Rebase and merge'
 
 
 
-export default function Login() {
+export default function ChangePassword() {
  
     const [open, setOpen] = React.useState(false);
-    const[username,setUsername]= useState("");
-    const[password,setPassword]= useState("");
+    const [open1, setOpen1] = React.useState(false);
+    const[oldPassword,setOldPassword]= useState("");
+    const[newPassword,setNewPassword]= useState("");
     const anchorRef = React.useRef(null);
     const headers = window.localStorage.getItem('token')
 
-    const login = {
-        username: username,
-        password : password
+    const passwords = {
+        oldPassword: oldPassword,
+        newPassword : newPassword
     
     }
     // console.log(login)
@@ -64,61 +65,64 @@ export default function Login() {
     
         setOpen(false);
       };
+      
+    const handleClick1 = () => {
+        setOpen1(true);
+      };
+
+      const handleClose1 = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setOpen1(false);
+      };
 
     function handleLogin(event) {
-     
-        axios.post('http://localhost:5000/login',login, ).then((res) => {
-
-            console.log(res.status)
-            console.log(res.data)
-            if(res.data === "Incorrect Password"){
-               console.log("wrong password")
-              setOpen(true) 
-            }
-            else{
-              if(res.data === "User not found"){
-                console.log("User not found")
-                setOpen(true) 
-              }else{
-              localStorage.setItem('token', res.data.accessToken);
-              console.log(res.data.username)
-              window.location = '/UserSearch'
-              }
-               
-            }
-           
+       // console.log(headers)
+        axios.post('http://localhost:5000/changePassword', passwords,{
+            headers: {
+              token: headers,
+            },}
+            ).then((res) => {
+              console.log(res.data)
+           if(res.data==="Incorrect Password"){
+            setOpen(true) 
+           }
+           else{
+             console.log("password changed")
+               setOpen1(true)
+           }
 
         }).catch(err => {
-            
-            console.log(err)
-            console.log("i am here")
-            
+    
         })
     }
   
   
     return (
         <div>
-            <h1>Login</h1>
+            <h1>Change Password</h1>
             <div className={classes.root}>
                 <TextField
                     required
-                    id = "Username"
-                    label="Username"
+                   
+                    id = "oldPassword"
+                    label="Old password"
                     defaultValue=""
                     variant="filled"
-                    name="id"
-                    onChange={(e) => setUsername(e.target.value)}
+                    name="oldPassword"
+                    onChange={(e) => setOldPassword(e.target.value)}
                 />
                 <TextField
                     required
-                    type="password"
-                    id="Password"
-                    label="Password"
+                   
+                    id="newPassword"
+                    label="New Password"
                     defaultValue=""
                     variant="filled"
-                    name="flightnumber"
-                    onChange={(e) => setPassword(e.target.value)}
+                    name="newPassword"
+                    onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <br />
                 <br />
@@ -129,20 +133,27 @@ export default function Login() {
                   
                         handleLogin()
                    
-                }} variant="contained">Login
+                }} variant="contained">Change Password
                 </Button>
 
             </div>
             <Stack spacing={2} sx={{ width: '100%' }}>
-      {/* <Button variant="outlined" onClick={handleClick}>
-        Open success snackbar
-      </Button> */}
+
+      
       <Snackbar open={open} autoHideDuration={1200} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-          wrong username or password
+          The old password you entered is incorrect.
         </Alert>
+
       </Snackbar>
+     
     </Stack>
+    <Snackbar open={open1} autoHideDuration={1700} onClose={handleClose1}>
+        <Alert onClose={handleClose1}  sx={{ width: '100%' }}>
+       Password changed successfully!   
+        </Alert>
+
+      </Snackbar>
 </div>
 
 

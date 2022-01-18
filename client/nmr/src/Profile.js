@@ -90,6 +90,14 @@ export default function Profile(){
              
           }} variant="contained">log Out
           </Button>
+          <Button onClick={() => {
+                  
+                  
+                  //localStorage.setItem('token', null);
+                  window.location='/ChangePassword'
+             
+          }} variant="contained">Change Password
+          </Button>
        
        
             {/* <h1>{flights[0]}</h1> */}

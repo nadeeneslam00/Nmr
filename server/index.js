@@ -1,8 +1,9 @@
+
 require('dotenv').config()
 
 const express = require('express');
 
-
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
@@ -50,20 +51,20 @@ mongoose.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: tr
   .catch(err => console.log(CONNECTION_URL));
 
 
-  app.post("/reservationAfterConfirm",authenticateToken, (req, res) => {
-    console.log("HEREEEEEE")
-   console.log(req.user)
-    
-    Reservation.find({ Name : req.user.name }).then(result => {
+app.post("/reservationAfterConfirm", authenticateToken, (req, res) => {
+  console.log("HEREEEEEE")
+  console.log(req.user)
 
-      console.log(req.user.name)
-      console.log("HEREEEEEE1")
-      console.log("1")
-      console.log(result)
-      res.json( result)
-      
-    }) 
-  });
+  Reservation.find({ Name: req.user.name }).then(result => {
+
+    console.log(req.user.name)
+    console.log("HEREEEEEE1")
+    console.log("1")
+    console.log(result)
+    res.json(result)
+
+  })
+});
 
 
 
@@ -131,11 +132,11 @@ app.get("/getFlights", (req, res) => {
 
   })
 });
-app.post('/UserSearch' , (req,res) => {
+app.post('/UserSearch', (req, res) => {
   //console.log(req.headers)
   console.log(req.body)
   const searchDetails = {}
- 
+
   if (req.body.From != "")
     searchDetails.From = req.body.From;
   if (req.body.To != "")
@@ -143,51 +144,53 @@ app.post('/UserSearch' , (req,res) => {
   if (req.body.FlightDate != null)
     searchDetails.FlightDate = req.body.FlightDate;
 
-    
- 
+
+
 
   console.dir(searchDetails)
 
   Flight.find(searchDetails, (err, result) => {
     // console.log(result)
     if (err) {
-    
+
       console.log(err)
     } else {
-    //res.json(result)
+      //res.json(result)
 
-    //let arrTime = new Date (req.body.From.ArrivalDate + "T" + req.body.From.ArrivalTime+":00.123Z");
-    //let DepTime = new Date (req.body.From.DepartureDate + "T" + req.body.From.DepartureTime+":00.123Z");
-    
+      //let arrTime = new Date (req.body.From.ArrivalDate + "T" + req.body.From.ArrivalTime+":00.123Z");
+      //let DepTime = new Date (req.body.From.DepartureDate + "T" + req.body.From.DepartureTime+":00.123Z");
+
       var resultFinal = [];
+      console.log("result here")
       console.log(result)
-     for(let i =0 ; i<result.length ; i++){
-       if(req.body.cabinClass === 1){
-        if (result[i].BusinessNumofSeats>=parseInt(req.body.numberofPassengers, 10)){
-          var TripDuration = (parseInt(Math.abs(result[i].ArrivalTime - result[i].DepartureTime )/ (1000*60*60)%24,10)+ "Hours" + parseInt(Math.abs(result[i].ArrivalTime.getTime() - result[i].DepartureTime.getTime())/(1000*60)%60,10)+"Minutes");
-          result[i].TripDuration = TripDuration;
-          console.log(TripDuration);
-          resultFinal.push(result[i])
+      for (let i = 0; i < result.length; i++) {
+        if (req.body.cabinClass === 1) {
+          if (result[i].BusinessNumofSeats >= parseInt(req.body.numberofPassengers, 10)) {
+            var TripDuration = (parseInt(Math.abs(result[i].ArrivalTime - result[i].DepartureTime) / (1000 * 60 * 60) % 24, 10) + "Hours" + parseInt(Math.abs(result[i].ArrivalTime.getTime() - result[i].DepartureTime.getTime()) / (1000 * 60) % 60, 10) + "Minutes");
+            result[i].TripDuration = TripDuration;
+            console.log(TripDuration);
+            resultFinal.push(result[i])
+
+          }
 
         }
-          
-       }
-       if(req.body.cabinClass === 2) {
-        if (result[i].EconomyNumofSeats>=parseInt(req.body.numberofPassengers, 10)){
-          var TripDuration = (parseInt(Math.abs(result[i].ArrivalTime - result[i].DepartureTime )/ (1000*60*60)%24,10)+ " Hours " + parseInt(Math.abs(result[i].ArrivalTime.getTime() - result[i].DepartureTime.getTime())/(1000*60)%60,10)+" Minutes");
-          let oneRes = result[i]
-          oneRes.TripDuration = TripDuration;
-          console.log(oneRes);
-          resultFinal.push(oneRes)
+        if (req.body.cabinClass === 2) {
+          if (result[i].EconomyNumofSeats >= parseInt(req.body.numberofPassengers, 10)) {
+            var TripDuration = (parseInt(Math.abs(result[i].ArrivalTime - result[i].DepartureTime) / (1000 * 60 * 60) % 24, 10) + " Hours " + parseInt(Math.abs(result[i].ArrivalTime.getTime() - result[i].DepartureTime.getTime()) / (1000 * 60) % 60, 10) + " Minutes");
+            let oneRes = result[i]
+            oneRes.TripDuration = TripDuration;
+            console.log(oneRes);
+            resultFinal.push(oneRes)
 
+          }
         }
-       }
-     }
-     res.json(resultFinal)
-  }
+      }
+      
+      res.json(resultFinal)
+    }
   });
 
-  
+
 });
 
 app.get("/getUsers", authenticateToken, (req, res) => {
@@ -306,49 +309,62 @@ app.post("/searchFlights", (req, res) => {
 });
 
 
-app.post('/token', (req,res) => {
+app.post('/token', (req, res) => {
   const refreshToken = req.body.token
-  if(refreshToken == null) return res.sendStatus(401)
-  if(!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
-  jwt.verify(refreshToken,""+ process.env.REFRESH_TOKEN_SECERT,(err, user) =>{
-  if(err) return res.sendStatus(403)
-  const accessToken = generateAccessToken({name :user.name})
-  res.json({accessToken : accessToken})
+  if (refreshToken == null) return res.sendStatus(401)
+  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
+  jwt.verify(refreshToken, "" + process.env.REFRESH_TOKEN_SECERT, (err, user) => {
+    if (err) return res.sendStatus(403)
+    const accessToken = generateAccessToken({ name: user.name })
+    res.json({ accessToken: accessToken })
   })
 });
 
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
+
   const email = req.body.email;
   const password = req.body.password;
   const name = req.body.name;
-  console.log('METHOD ACTIVE')
+  // console.log('METHOD ACTIVE')
   try {
     let user = await User.findOne({
-      email,
+      Email: email
     });
     if (user) {
+      console.log("User already found");
       return res.json({
         statusCode: 0,
         message: 'email already exists, please sign in',
       })
     } else {
+      console.log('METHOD ACTIVE')
       var newUser = new User({
-        username: email,
+        FirstName: req.body.firstName,
+        LastName: req.body.lastName,
+        Address: req.body.address,
+        CountryCode: req.body.countryCode,
+        TelephoneNumber: req.body.telephone,
+        PassportNo: req.body.passportNumber,
+        Email: email,
         Name: name,
-        password: bcrypt.hashSync(password, 10),
-        isAdmin: false,
+        Password: bcrypt.hashSync(password, 10),
+        Admin: false,
       })
+      console.log(newUser);
       newUser.save(function (err, user) {
         if (err) {
-          return (res.status = (400).send({
+          console.log(err);
+          return (res.status(200).send({
             message: err,
           }))
         } else {
+          console.log("SUCCESS");
           return res.json(user)
         }
       })
     }
   } catch (err) {
+    console.log(err);
     if (err) {
       return res.json({
         statusCode: 1,
@@ -360,37 +376,45 @@ app.post('/signup', (req, res) => {
 
 app.post('/login', (req, res) => {
   //Authenticatio
-  // console.log(req.body);
-  User.findOne({ Name: req.body.username }).then(result => {
-    var result2 = bcrypt.compareSync(req.body.password, result.password)
-    if (result != null) {
+  console.log("EL CHENK DAKHAL");
+  console.log(req.body)
 
+  User.findOne({ Name: req.body.username }).then(result => {
+    console.log(result.Password)
+    console.log(req.body.password)
+    console.log(result)
+    if (result != null) {
+      console.log("EL CHENK DAKHAL 2");
+      var result2 = bcrypt.compareSync(req.body.password, result.Password)
+      console.log(result2)
       if (result2) {
         console.log("equal")
         const user = { name: req.body.username };
         console.log(user)
         const accessToken = generateAccessToken(user)
-        const refreshToken= jwt.sign(user,""+ process.env.REFRESH_TOKEN_SECERT)
+        const refreshToken = jwt.sign(user, "" + process.env.REFRESH_TOKEN_SECERT)
         refreshTokens.push(refreshToken)
         console.log("yaayyy")
         res.json({ accessToken: accessToken, refreshToken: refreshToken })
         console.log("yaayyy")
         console.log(accessToken)
-        res.json("true");
-        res.send("succes")
- 
+
+
+
+
       } else {
-      
-        res.send("not allowed")
- 
+        console.log("incorrect password")
+
+        res.send("Incorrect Password")
+
       }
     }
     else {
-      res.send("NOT FOUND")
 
     }
- 
+
   }).catch(err => {
+    res.send("User not found")
 
 
   })
@@ -398,8 +422,38 @@ app.post('/login', (req, res) => {
 
 
 });
+
+app.post("/changePassword", authenticateToken, (req, res) => {
+  console.log("HEREEEEEE")
+  console.log(req.user)
+
+  User.findOne({ Name: req.user.name }).then(result => {
+    console.log(result.Password)
+    console.group(req.body.oldPassword)
+    var result2 = bcrypt.compareSync(req.body.oldPassword, result.Password)
+    console.log(result2)
+    if (result2) {
+      result.Password = bcrypt.hashSync(req.body.newPassword, 10)
+      result.save().then((result) => {
+        console.log(result);
+        res.send("Success")
+      }).catch((e) => {
+        console.log(e);
+      })
+    }
+    else {
+
+      res.send("Incorrect Password")
+    }
+
+  })
+});
+
+
+
+
 app.post('/logout', (req, res) => {
-  
+
   res.sendStatus(204)
 })
 
@@ -410,20 +464,20 @@ app.post("/getBussinessSeats", (req, res) => {
   Flight.findOne({
     Id: req.body.Id
   }).then(result => {
-    var TripDuration = (parseInt(Math.abs(result.ArrivalTime - result.DepartureTime )/ (1000*60*60)%24,10)+ "Hours" + parseInt(Math.abs(result.ArrivalTime.getTime() - result.DepartureTime.getTime())/(1000*60)%60,10)+"Minutes");
-console.log("FINALLLLL")
+    var TripDuration = (parseInt(Math.abs(result.ArrivalTime - result.DepartureTime) / (1000 * 60 * 60) % 24, 10) + "Hours" + parseInt(Math.abs(result.ArrivalTime.getTime() - result.DepartureTime.getTime()) / (1000 * 60) % 60, 10) + "Minutes");
+    console.log("FINALLLLL")
     console.log(req.body.CabinClass)
     if (req.body.CabinClass == "1") {
-      
-      const Obj={
+
+      const Obj = {
         Id: result.Id,
         FlightNumber: result.FlightNumber,
-        From:result.From,
-        To:result.To,
-        FlightDate:result.FlightDate,
-        ArrivalTime:result.ArrivalTime,
-        DepartureTime:result.DepartureTime,
-        Seats:result.BusinessSeats,
+        From: result.From,
+        To: result.To,
+        FlightDate: result.FlightDate,
+        ArrivalTime: result.ArrivalTime,
+        DepartureTime: result.DepartureTime,
+        Seats: result.BusinessSeats,
         TripDuration: TripDuration
       }
       console.log(Obj)
@@ -431,21 +485,21 @@ console.log("FINALLLLL")
       console.log("PLSSS")
     }
     else {
-    
-        const Obj={
-          Id: result.Id,
-          FlightNumber: result.FlightNumber,
-          From:result.From,
-          To:result.To,
-          FlightDate:result.FlightDate,
-          ArrivalTime:result.ArrivalTime,
-          DepartureTime:result.DepartureTime,
-          Seats:result.EconomySeats,
-          TripDuration: TripDuration
-        }
-        console.log(Obj)
-        res.send(Obj)
-        console.log("PLSSS")
+
+      const Obj = {
+        Id: result.Id,
+        FlightNumber: result.FlightNumber,
+        From: result.From,
+        To: result.To,
+        FlightDate: result.FlightDate,
+        ArrivalTime: result.ArrivalTime,
+        DepartureTime: result.DepartureTime,
+        Seats: result.EconomySeats,
+        TripDuration: TripDuration
+      }
+      console.log(Obj)
+      res.send(Obj)
+      console.log("PLSSS")
     }
   }).catch(err => {
 
@@ -453,126 +507,130 @@ console.log("FINALLLLL")
 
 });
 
-app.post("/getTempChosenFlights",authenticateToken, (req, res) => {
-  console.log(req.user)
-  const Obj = {
-  Name: req.user.name,
-    Departure: req.body.Departure,
+// app.post("/getTempChosenFlights", authenticateToken, (req, res) => {
+//   console.log(req.user)
+//   const Obj = {
+//     Name: req.user.name,
+//     Departure: req.body.Departure,
 
-  }
+//   }
 
-  tempChosenFlight.findOne(Obj).then(result => {
-    console.log("HERE")
-    console.log(result)
-    res.send(result)
-   
+//   tempChosenFlight.findOne(Obj).then(result => {
+//     console.log("HERE")
+//     console.log(result)
+//     res.send(result)
 
-})
-})
-app.post("/postTempChosenFlights",authenticateToken, (req, res) => {
 
-  if(req.user==null){
-    return res.send("null")
-  } else {
-    console.log(req.user)
-    const Obj =[ {
-     Name:req.user.name,
-      Id: req.body.Id,
-      CabinClass: req.body.CabinClass,
-      Departure: req.body.Departure
-    }]
-    tempChosenFlight.insertMany(Obj).then(result => {
-      console.log(result)
-      res.send("success")
-    }).then(err=>{
-  
-    })
-  }
-  
- 
-})
+//   })
+// })
+// app.post("/postTempChosenFlights", authenticateToken, (req, res) => {
 
-app.post("/reserve", (req, res) => {
+//   if (req.user == null) {
+//     return res.send("null")
+//   } else {
+//     console.log(req.user)
+//     const Obj = [{
+//       Name: req.user.name,
+//       Id: req.body.Id,
+//       CabinClass: req.body.CabinClass,
+//       Departure: req.body.Departure
+//     }]
+//     tempChosenFlight.insertMany(Obj).then(result => {
+//       console.log(result)
+//       res.send("success")
+//     }).then(err => {
+
+//     })
+//   }
+
+
+// })
+
+app.post("/reserve", authenticateToken, (req, res) => {
   console.log(req.body)
-  var str1=""
+  var str1 = ""
   for (let index = 0; index < req.body.ChosenSeatDeparture.length; index++) {
-    if(req.body.ChosenSeatDeparture[index]==="true")
-        str1=str1+" "+index+" "+ " "+","
-   }  
-   var str2=""
-   for (let index = 0; index < req.body.ChosenSeatReturn.length; index++) {
-     if(req.body.ChosenSeatReturn[index]==="true")
-         str2=str2+" "+index+" "+ " "+","
-    }  
-  const resrvation=[{
-    Name:req.body.Name,
+    if (req.body.ChosenSeatDeparture[index] === "true")
+      str1 = str1 + " " + index + " " + " " + ","
+  }
+  var str2 = ""
+  for (let index = 0; index < req.body.ChosenSeatReturn.length; index++) {
+    if (req.body.ChosenSeatReturn[index] === "true")
+      str2 = str2 + " " + index + " " + " " + ","
+  }
+  const resrvation = [{
+
+    Name: req.user.name,
     From: req.body.From,
-    To:req.body.To,
+    DepId: req.body.DepId,
+    RetId: req.body.RetId,
+    To: req.body.To,
     DepartureDate: req.body.DepartureDate,
     ReturnDate: req.body.ReturnDate,
     DepDepTime: req.body.DepDepTime,
     DepArrTime: req.body.DepArrTime,
     RetDepTime: req.body.RetDepTime,
-    RetArrTime:req.body. RetArrTime,
+    RetArrTime: req.body.RetArrTime,
     TotalPrice: req.body.TotalPrice,
     ChosenCabinDeparture: req.body.ChosenCabinDeparture,
-    ChosenSeatDeparture:req.body. ChosenSeatDeparture,
-    ChosenCabinReturn:req.body.ChosenCabinReturn,
-    ChosenSeatReturn:req.body.ChosenSeatReturn,
-    DepSeatsStr:str1,
-    RetSeatsStr:str2
+    ChosenSeatDeparture: req.body.ChosenSeatDeparture,
+    ChosenCabinReturn: req.body.ChosenCabinReturn,
+    ChosenSeatReturn: req.body.ChosenSeatReturn,
+    DepSeatsStr: str1,
+    RetSeatsStr: str2
 
 
-}]
-  
+
+  }]
+  console.log("final testing")
   Reservation.insertMany(resrvation).then(result => {
     console.log(result)
     res.send("success")
-  }).then(err=>{
+  }).then(err => {
 
   })
- 
+
 })
-app.post("/viewReservations",authenticateToken, (req, res) => {
+app.post("/viewReservations", authenticateToken, (req, res) => {
   console.log("HEREEEEEE")
- console.log(req.user)
-  
-  Reservation.find({ Name : req.user.name }).then(result => {
+  console.log(req.user)
+
+  Reservation.find({ Name: req.user.name }).then(result => {
     console.log(req.user.name)
     console.log("HEREEEEEE1")
     console.log("1")
     console.log(result)
-    res.json( result);
-  }) 
+    res.json(result);
+  })
 });
-app.post("/profile",authenticateToken, (req, res) => {
+app.post("/profile", authenticateToken, (req, res) => {
   console.log("HEREEEEEE")
- console.log(req.user)
-  
-  User.find({ Name : req.user.name }).then(result => {
+  console.log(req.user)
+
+  User.find({ Name: req.user.name }).then(result => {
     console.log(req.user.name)
     console.log("HEREEEEEE1")
     console.log("1")
     console.log(result)
-    res.json( result);
-  }) 
- 
+    res.json(result);
+  })
+
 });
-app.post("/updateProfile",authenticateToken,  (req, res) => {
+app.post("/updateProfile", authenticateToken, (req, res) => {
 
 
   const newObj = {}
-  if (req.body.FirstName!= "")
+  if (req.body.FirstName != "")
     newObj.FirstName = req.body.FirstName;
-    console.log(req.body.FirstName);
-   
-  if (req.body.LastName!= "")
+  console.log(req.body.FirstName);
+
+  if (req.body.LastName != "")
     newObj.LastName = req.body.LastName;
-  if (req.body.Email!= "")
+  if (req.body.Email != "")
     newObj.Email = req.body.Email;
-  if (req.body.PassportNo!= "")
+  if (req.body.PassportNo != "")
     newObj.PassportNo = req.body.PassportNo;
-  
+
   console.log(req.body);
   console.dir(newObj)
   console.log("VALUEEE")
@@ -595,54 +653,54 @@ app.post("/updateProfile",authenticateToken,  (req, res) => {
 
   })
 });
-app.post("/deleteReservation",authenticateToken, (req, res) => {
-  const Obj={}
- 
-  User.findOne({Name:req.user.name}).then(result=>{
+app.post("/deleteReservation", authenticateToken, (req, res) => {
+  const Obj = {}
+
+  User.findOne({ Name: req.user.name }).then(result => {
     console.log("HHHHHHNNNNNM")
-   Obj.mail=result.Email
-   
-    Reservation.findOne({ ReservationNo : req.body._id}).then(result=>{
+    Obj.mail = result.Email
+
+    Reservation.findOne({ ReservationNo: req.body._id }).then(result => {
       console.log("LLLLLLLLLLNM")
       console.log(result)
-      Obj.price=result.TotalPrice
-    
+      Obj.price = result.TotalPrice
+
       const transporter = nodemailer.createTransport({
 
-    
+
         port: 465,               // true for 465, false for other ports
         host: "smtp.gmail.com",
-           auth: {
-                user: 'menna.shoulkamy@gmail.com',
-                pass: 'Menna1234',
-             },
+        auth: {
+          user: 'menna.shoulkamy@gmail.com',
+          pass: 'Menna1234',
+        },
         secure: true,
-        });
-        const mailData = {
-          from: 'menna.shoulkamy@gmail.com',  // sender address
-            to: ''+Obj.mail,   // list of receivers
-            subject: 'Cancelled Booking',
-            text: 'Booking is Cancelled, Total amount to be refunded is'+Obj.price +''
-          };
-          transporter.sendMail(mailData, function (err, info) {
-            if(err)
-              console.log(err)
-            else
-              console.log(info);
-         });
-    }).then(err=>{
-  
+      });
+      const mailData = {
+        from: 'menna.shoulkamy@gmail.com',  // sender address
+        to: '' + Obj.mail,   // list of receivers
+        subject: 'Cancelled Booking',
+        text: 'Booking is Cancelled, Total amount to be refunded is' + Obj.price + ''
+      };
+      transporter.sendMail(mailData, function (err, info) {
+        if (err)
+          console.log(err)
+        else
+          console.log(info);
+      });
+    }).then(err => {
+
     })
-  }).then(err=>{
+  }).then(err => {
 
-  })  
+  })
 
-    
-  Reservation.findOneAndDelete({ ReservationNo : (req.body._id) }).then(result => {
+
+  Reservation.findOneAndDelete({ ReservationNo: (req.body._id) }).then(result => {
     //console.log(req.body)
     console.log("yaayyy")
-  
-    
+
+
   }).catch(err => {
 
     console.log(parseInt(req.body.ReservationNo, 10))
@@ -652,7 +710,7 @@ app.post("/deleteReservation",authenticateToken, (req, res) => {
 
 
   })
-  
+
 });
 app.get("/getFlight", (req, res) => {
 
@@ -662,7 +720,7 @@ app.get("/getFlight", (req, res) => {
 
   })
 })
-app.post("/selectBussinessSeats",authenticateToken, (req, res) => {
+app.post("/selectBussinessSeats", authenticateToken, (req, res) => {
 
   console.log("LOOOOOOK")
   console.log(req.body.selectedBussinessSeats)
@@ -671,9 +729,7 @@ app.post("/selectBussinessSeats",authenticateToken, (req, res) => {
   Flight.findOne({
     Id: req.body.Id
   }).then((result) => {
-    // console.log("LOOKK HERE")
-    // console.log(req.body.Id)
-    //console.log(result)
+
     if (req.body.CabinClass == "1") {
       for (let i = 0; i < req.body.selectedBussinessSeats.length; i++) {
         if (req.body.selectedBussinessSeats[i] == "true") {
@@ -685,7 +741,7 @@ app.post("/selectBussinessSeats",authenticateToken, (req, res) => {
         }).catch((e) => {
           console.log(e);
         })
-        
+
       }
     }
     else {
@@ -699,15 +755,11 @@ app.post("/selectBussinessSeats",authenticateToken, (req, res) => {
         }).catch((e) => {
           console.log(e);
         })
-        
+
       }
     }
 
-    tempChosenFlight.findOneAndDelete({Name: req.user.name,
-    Id:req.body.Id}).then(result=>{
-    }).catch(err=>{
 
-    })
 
   }).catch(err => {
 
@@ -717,31 +769,112 @@ app.post("/selectBussinessSeats",authenticateToken, (req, res) => {
 
 
 });
-function authenticateToken(req,res,next){
+
+app.post("/EditSeats", authenticateToken, (req, res) => {
+  console.log("Final check")
+  console.log(req.body)
+  const oldSeatsArray = req.body.oldSeats.split(",");
+
+  Reservation.findById(req.body.reservatinNo).then((result) => {
+    var str1 = ""
+    for (let index = 0; index < req.body.selectedSeats.length; index++) {
+      if (req.body.selectedSeats[index] === "true")
+        str1 = str1 + " " + index + " " + " " + ","
+    }
+    if (req.body.Departure == "1") {
+      result.DepSeatsStr = str1
+      result.ChosenSeatDeparture = req.body.selectedSeats
+    }
+    else {
+      result.RetSeatsStr = str1
+      result.ChosenSeatReturn = req.body.selectedSeats
+    }
+
+    result.save().then((result) => {
+      console.log(result);
+    }).catch((e) => {
+      console.log(e);
+    })
+
+  })
+  Flight.findOne({
+    Id: req.body.editFlight
+  }).then((res) => {
+    console.log(res)
+console.log("1111")
+    if (req.body.editFlightCabin == "1") {
+      console.log("YAYYYYYYYY R")
+      console.log(oldSeatsArray)
+      console.log("selected seats")
+      console.log(req.body.selectedSeats)
+      for (let i = 0; i < req.body.selectedSeats.length; i++) {
+        console.log("got here")
+        if (req.body.selectedSeats[i] == 'true') {
+          console.log("I")
+          console.log(i)
+          res.BusinessSeats[i] = "true"
+          res.BusinessNumofSeats--
+        }
+        if (oldSeatsArray[i] == "true") {
+          res.BusinessSeats[i] = "false"
+          res.BusinessNumofSeats++
+        }
+      }
+
+    }
+    else {
+      for (let i = 0; i < req.body.selectedSeats.length; i++) {
+        
+        if (req.body.selectedSeats[i] == "true") {
+          res.EconomySeats[i] = "true"
+          res.EconomyNumofSeats--
+        }
+        if (oldSeatsArray[i] == "true") {
+          res.EconomySeats[i] = "false"
+          res.EconomySeats++
+        }
+    
+      }
+    }
+    res.save().then((res1) => {
+      console.log(res1);
+    }).catch((e) => {
+      console.log(e);
+    })
+
+
+
+
+  }).catch(err => {
+
+    // console.log("ERRRRR")
+  })
+})
+function authenticateToken(req, res, next) {
 
   // console.log(req);
-  const token= req.headers['token']
+  const token = req.headers['token']
   console.log(token)
-  if(token == "null"){
+  if (token == "null") {
     req.user = null;
     next();
   } else {
-    jwt.verify(token,process.env.ACCESS_TOKEN_SECERT,(err,user)=>{
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECERT, (err, user) => {
       console.log("NOT AUTHENTICATED");
-      if(err)return res.sendStatus(403)
-      req.user=user
+      if (err) return res.sendStatus(403)
+      req.user = user
       console.log();
       next()
     })
   }
-  
-  
+
+
 }
 
-function generateAccessToken(user){
-  return jwt.sign(user,""+ process.env.ACCESS_TOKEN_SECERT)
+function generateAccessToken(user) {
+  return jwt.sign(user, "" + process.env.ACCESS_TOKEN_SECERT)
 
-  
+
 }
 
 

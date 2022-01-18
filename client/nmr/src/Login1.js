@@ -51,7 +51,7 @@ export default function Login() {
         password : password
     
     }
-    console.log(login)
+    // console.log(login)
 
     const handleClick = () => {
         setOpen(true);
@@ -66,24 +66,31 @@ export default function Login() {
       };
 
     function handleLogin(event) {
-        
+     
         axios.post('http://localhost:5000/login',login, ).then((res) => {
+
             console.log(res.status)
             console.log(res.data)
-            if(res.status === 200){
-            localStorage.setItem('token', res.data.accessToken);
-            console.log(res.data.username)
-            window.location = '/Profile'
+            if(res.data === "Incorrect Password"){
+               console.log("wrong password")
+              setOpen(true) 
             }
             else{
-               setOpen(true) 
+              if(res.data === "User not found"){
+                console.log("User not found")
+                setOpen(true) 
+              }else{
+              localStorage.setItem('token', res.data.accessToken);
+              console.log(res.data.username)
+              window.location = '/Profile'
+              }
                
             }
            
 
         }).catch(err => {
             
-            //console.log(err)
+            console.log(err)
             console.log("i am here")
             
         })
@@ -105,6 +112,7 @@ export default function Login() {
                 />
                 <TextField
                     required
+                    type="password"
                     id="Password"
                     label="Password"
                     defaultValue=""

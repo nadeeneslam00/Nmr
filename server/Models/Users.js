@@ -31,6 +31,15 @@ const userSchema = new Schema({
  Admin: {
     type: Boolean,
     required: true
+  },
+  CountryCode:{
+    type: Number
+  },
+  TelephoneNumber:{
+    type:String
+  },
+  Address:{
+    type:String
   }
   
 

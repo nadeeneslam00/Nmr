@@ -7,30 +7,28 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { useState, useEffect } from "react";
 import { blue } from '@mui/material/colors';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 const useStyles = makeStyles((theme) => ({
     colorBlue: {}
     ,
 
 }))
-const getDep = {
-    Departure: true
-}
-const getRet = {
-    Departure: false
-}
+
 
 const selectedBussinessSeatsDep = ["false", "false", "false", "false", "false", "false", "false", "false", "false"];
-const selectedBussinessSeatsRet = ["false", "false", "false", "false", "false", "false", "false", "false", "false"];
 
-export default function ViewSeats() {
+export default function EditSeats() {
     const classes = useStyles()
     const selectedSeatsDep = {}
     const selectedSeatsRet = {}
-    const depFlight = window.localStorage.getItem('depFlightId')
-    const depFlightCabin = window.localStorage.getItem('depCabinClass')
-    
-    const retFlight = window.localStorage.getItem('retFlightId')
-    const retFlightCabin = window.localStorage.getItem('retCabinClass')
+    const editFlight = window.localStorage.getItem('EditFlightId')
+    const editFlightCabin = window.localStorage.getItem('EditCabinClass')
+    const oldSeats= window.localStorage.getItem('EditChosenSeats')
+    console.log(oldSeats)
+    const reservatinNo= window.localStorage.getItem('ReservationNo')
+   const Departure= window.localStorage.getItem('Departure')
+
     const [depFlightId, setDepFlightId] = useState(0);
     const [retFlightId, setRetFlightId] = useState(0);
     const [depCabinClass, setDepFlightCabinClass] = useState("");
@@ -53,12 +51,23 @@ export default function ViewSeats() {
     const [retPrice, setRetPrice] = useState(-1);
     const [depTripDuration, setDepTripDuration] = useState("");
     const [retTripDuration, setRetTripDuration] = useState("");
+
+     
+    const [open, setOpen] = React.useState(false);
+
     const headers = window.localStorage.getItem('token')
+    const handleClick = () => {
+        setOpen(true);
+      };
 
-    //const retFlight = {}
-    // const [depFlight, setDepFlight] = useState({});
-    // const [retFlight, setRetFlight] = useState({});
-
+      const handleClose = (event, reason) => {
+        window.location = '/ViewReservations'
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setOpen(false);
+      };
 
     function handleSeat(e) {
         if (e.target.style.backgroundColor != "red") {
@@ -72,115 +81,115 @@ export default function ViewSeats() {
         console.log(parseInt(e.target.innerHTML.charAt(0), 10))
         console.log(e.target.innerHTML.charAt(0))
     }
-    function handleSeatRet(e) {
-        if (e.target.style.backgroundColor != "red") {
-            e.target.style.backgroundColor = "red"
-            selectedBussinessSeatsRet[parseInt(e.target.innerHTML.charAt(0), 10)] = "true";
-        } else {
-            e.target.style.backgroundColor = "white"
-            selectedBussinessSeatsRet[parseInt(e.target.innerHTML.charAt(0), 10)] = "false";
-        }
-        console.log(selectedBussinessSeatsRet[parseInt(e.target.innerHTML.charAt(0), 10)])
-        console.log(parseInt(e.target.innerHTML.charAt(0), 10))
-        console.log(e.target.innerHTML.charAt(0))
-    }
+    
     function handleSelect(e) {
-        const resrvation = {
-            DepId:depFlight,
-            RetId:retFlight,
-            From: depFrom,
-            To: depTo,
-            DepartureDate: depFlightDate,
-            ReturnDate: retFlightDate,
-            DepDepTime: depDepartureTime,
-            DepArrTime: depArrivalTime,
-            RetDepTime: retDepartureTime,
-            RetArrTime: retArrivalTime,
-            TotalPrice: depPrice + retPrice,
-            ChosenCabinDeparture: depCabinClass,
-            ChosenSeatDeparture: selectedBussinessSeatsDep,
-            ChosenCabinReturn: retCabinClass,
-            ChosenSeatReturn: selectedBussinessSeatsRet
-
-
-        }
-        selectedSeatsDep.Id = depFlight
-        selectedSeatsDep.selectedBussinessSeats = selectedBussinessSeatsDep
-        selectedSeatsDep.CabinClass = depCabinClass
-
-
-        selectedSeatsRet.Id = retFlight
-        selectedSeatsRet.selectedBussinessSeats = selectedBussinessSeatsRet
-
-        selectedSeatsRet.CabinClass = retCabinClass
-
-        console.log(resrvation)
-        axios.post('http://localhost:5000/reserve', resrvation, {
+   
+         axios.post('http://localhost:5000/EditSeats', { editFlight:editFlight,
+         editFlightCabin:editFlightCabin,
+         oldSeats:oldSeats,
+         reservatinNo:reservatinNo,
+         Departure:Departure,
+         selectedSeats: selectedBussinessSeatsDep
+             
+         }, {
             headers: {
                 token: headers,
             },
-        }
+       }
         ).then(() => {
             console.log("yaaayy")
+           // setOpen(true)
 
 
         }).catch(err => {
             console.log(err)
             console.log("i am here")
+            //setOpen(true)
         })
-console.log(selectedSeatsDep)
-        axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsDep, {
-            headers: {
-                token: headers,
-            },
-        }).then(() => {
-            console.log("yaaayy")
+        setOpen(true)
+        // const resrvation = {
+        //     DepId:depFlight,
+        //     RetId:retFlight,
+        //     From: depFrom,
+        //     To: depTo,
+        //     DepartureDate: depFlightDate,
+        //     ReturnDate: retFlightDate,
+        //     DepDepTime: depDepartureTime,
+        //     DepArrTime: depArrivalTime,
+        //     RetDepTime: retDepartureTime,
+        //     RetArrTime: retArrivalTime,
+        //     TotalPrice: depPrice + retPrice,
+        //     ChosenCabinDeparture: depCabinClass,
+        //     ChosenSeatDeparture: selectedBussinessSeatsDep,
+        //     ChosenCabinReturn: retCabinClass,
+        //     ChosenSeatReturn: selectedBussinessSeatsRet
 
 
-        }).catch(err => {
-            console.log(err)
-            console.log("i am here")
-        })
-        console.log(selectedSeatsRet)
-        axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsRet, {
-            headers: {
-                token: headers,
-            },
-        }).then(() => {
-            console.log("yaaayy")
+        // }
+        // selectedSeatsDep.Id = depFlight
+        // selectedSeatsDep.selectedBussinessSeats = selectedBussinessSeatsDep
+        // selectedSeatsDep.CabinClass = depCabinClass
 
 
-        }).catch(err => {
-            console.log(err)
-            console.log("i am here")
-        })
-        window.location = '/ReservationAfterConfirm'
+        // selectedSeatsRet.Id = retFlight
+        // selectedSeatsRet.selectedBussinessSeats = selectedBussinessSeatsRet
+
+        // selectedSeatsRet.CabinClass = retCabinClass
+
+        // console.log(resrvation)
+        // axios.post('http://localhost:5000/reserve', resrvation, {
+        //     headers: {
+        //         token: headers,
+        //     },
+       // }
+//         ).then(() => {
+//             console.log("yaaayy")
+
+
+//         }).catch(err => {
+//             console.log(err)
+//             console.log("i am here")
+//         })
+// console.log(selectedSeatsDep)
+        // axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsDep, {
+        //     headers: {
+        //         token: headers,
+        //     },
+        // }).then(() => {
+        //     console.log("yaaayy")
+
+
+        // }).catch(err => {
+        //     console.log(err)
+        //     console.log("i am here")
+        // })
+        // console.log(selectedSeatsRet)
+        // axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsRet, {
+        //     headers: {
+        //         token: headers,
+        //     },
+        // }).then(() => {
+        //     console.log("yaaayy")
+
+
+        // }).catch(err => {
+        //     console.log(err)
+        //     console.log("i am here")
+        // })
+        // window.location = '/ReservationAfterConfirm'
     }
     function get(event) {
 
     }
     useEffect(() => {
 
-        // axios.post('http://localhost:5000/getTempChosenFlights', getDep,{
-        //     headers: {
-        //       token: headers,
-        //     },}).then((response) => {
-        //     console.log(response.data);
-        //     depFlight.Id = response.data.Id
-        //     depFlight.CabinClass = response.data.CabinClass
-        //     setDepFlightId(response.data.Id)
-        //     setDepFlightCabinClass(response.data.CabinClass)
-        //     console.log(depFlight)
-
-
       
-        setDepFlightCabinClass(window.localStorage.getItem('depCabinClass'))
-        console.log(depFlight)
+      
         axios.post('http://localhost:5000/getBussinessSeats', {
-            Id: depFlight,
-            CabinClass: depFlightCabin
+            Id: editFlight,
+            CabinClass: editFlightCabin
         }).then((response) => {
-            //Sconsole.log(response.data);
+           
             setSeatsArrDep(response.data.Seats)
             setDepFlightNumber(response.data.FlightNumber)
             setDepFrom(response.data.From)
@@ -198,54 +207,7 @@ console.log(selectedSeatsDep)
         })
 
 
-        console.log("i got triggered now")
-        // }).catch(err => {
-        //     console.log(err)
-        //     console.log("i am here")
-        // })
-        // axios.post('http://localhost:5000/getTempChosenFlights', getRet,{
-        //     headers: {
-        //       token: headers,
-        //     },}).then((response) => {
-        //     console.log(response.data);
-        //     retFlight.Id = response.data.Id
-        //     retFlight.CabinClass = response.data.CabinClass
-        //     setRetFlightId(response.data.Id)
-        //     setRetFlightCabinClass(response.data.CabinClass)
-        //     console.log(retFlight)
-
-        setRetFlightCabinClass(window.localStorage.getItem('retCabinClass'))
-        axios.post('http://localhost:5000/getBussinessSeats', {
-            Id: retFlight,
-            CabinClass: retFlightCabin
-        }).then((response) => {
-            //Sconsole.log(response.data);
-            setSeatsArrRet(response.data.Seats)
-            setRetFlightNumber(response.data.FlightNumber)
-            setRetFrom(response.data.From)
-            setRetTo(response.data.To)
-            setRetFlightDate(response.data.FlightDate)
-            setRetArrivalTime(response.data.ArrivalTime)
-            setRetDepartureTime(response.data.DepartureTime)
-            setRetTripDuration(response.data.TripDuration)
-
-            console.log(seatsArrRet);
-            console.log("i got triggered now")
-        }).catch(err => {
-            console.log(err)
-            console.log("i am here")
-        })
-
-
-
-
-
-        console.log("i got triggered now")
-        // }).catch(err => {
-        //     console.log(err)
-        //     console.log("i am here")
-        // })
-        console.log(depFlight)
+       
 
 
     }, [])
@@ -257,7 +219,7 @@ console.log(selectedSeatsDep)
     return (
         <div>
             <div style={{ display: "flex" }}>
-                <h2>Departure Flight Seats</h2>
+                <h2>Available Flight Seats</h2>
                 {seatsArrDep.length !== 0 ? seatsArrDep.map((seat, index) => {
                     if (seat == "false") {
                         return <div className="seats">
@@ -279,29 +241,9 @@ console.log(selectedSeatsDep)
                 }
 
             </div>
-            <div style={{ display: "flex" }}>
-                <h2>Return Flight Seats</h2>
-                {seatsArrRet.length !== 0 ? seatsArrRet.map((seat, index) => {
-                    if (seat == "false") {
-                        return <div className="seats">
+          
 
-                            <Button onClick={handleSeatRet} variant="outlined" style={{ marginLeft: "2vw", marginTop: "2vw" }}>{index}</Button>
-
-                        </div>
-
-                    }
-                    else {
-                        return <div className="seats">
-
-                            <Button style={{ marginLeft: "2vw", marginTop: "2vw", backgroundColor: "black" }}>X</Button>
-
-                        </div>
-
-                    }
-                }) : <h1>No Results Found</h1>
-                }
-
-            </div>
+      
             <div>
                 <br />
 
@@ -353,6 +295,12 @@ console.log(selectedSeatsDep)
                 }}
                     variant="outlined">Select Seats</Button>
             </div>
+            <Snackbar open={open} autoHideDuration={1700} onClose={handleClose}>
+        <Alert onClose={handleClose}  sx={{ width: '100%' }}>
+       Seat changed successfully!   
+        </Alert>
+
+      </Snackbar>
 
         </div>
     )

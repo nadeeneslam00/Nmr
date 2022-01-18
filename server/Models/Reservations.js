@@ -2,37 +2,43 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const reservationSchema = new Schema({
   Name: {
-    type: String, 
+    type: String,
     required: true
   },
-  From:{
+  From: {
     type: String,
-    required:true,
+    required: true,
 
   },
-  To:{
+  DepId: {
+    type: Number
+  },
+  RetId: {
+    type: Number
+  },
+  To: {
     type: String,
-    required:true,
+    required: true,
 
   },
-  RetSeatsStr:{
+  RetSeatsStr: {
     type: String,
-    required:true,
+    required: true,
 
   },
-  DepSeatsStr:{
+  DepSeatsStr: {
     type: String,
-    required:true,
+    required: true,
 
   },
-  DepartureDate:{
+  DepartureDate: {
     type: Date,
-    required:true,
+    required: true,
 
   },
-  ReturnDate:{
+  ReturnDate: {
     type: Date,
-    required:true,
+    required: true,
 
   },
   DepDepTime: {
@@ -51,29 +57,29 @@ const reservationSchema = new Schema({
     type: Date,
     required: true
   },
- 
- 
+
+
   TotalPrice: {
-      type: Number,
-      required: true
-    },
-    ChosenCabinDeparture: {
-      type: String,
-      required: true
-    },
-   ChosenSeatDeparture: {
-      type: Array,
-      required: true
-    },
-    ChosenCabinReturn: {
-      type: String,
-      required: true
-    },
-   ChosenSeatReturn: {
-      type: Array,
-      required: true
-    }
-  }, { timestamps: true });
-  
-  const Reservation = mongoose.model('Reservations', reservationSchema);
-  module.exports = Reservation;
+    type: Number,
+    required: true
+  },
+  ChosenCabinDeparture: {
+    type: String,
+    required: true
+  },
+  ChosenSeatDeparture: {
+    type: Array,
+    required: true
+  },
+  ChosenCabinReturn: {
+    type: String,
+    required: true
+  },
+  ChosenSeatReturn: {
+    type: Array,
+    required: true
+  }
+}, { timestamps: true });
+
+const Reservation = mongoose.model('Reservations', reservationSchema);
+module.exports = Reservation;

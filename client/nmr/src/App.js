@@ -18,8 +18,10 @@ import ViewReservations from './ViewReservations';
 import DeleteReservation from './DeleteReservation';
 import Profile from "./Profile";
 import UpdateProfile from "./UpdateProfile";
-
-
+import Signup from "./Signup";
+import ChangePassword from "./ChangePassword";
+import EditSeats from "./EditSeats";
+import EditFlight from "./EditFlight";
 class App extends Component {
   render() {
     return (
@@ -46,6 +48,10 @@ class App extends Component {
               <Route path="/DeleteReservation" element={<DeleteReservation />} />
               <Route path="/Profile" element={<Profile />} />
               <Route path="/updateProfile" element={<UpdateProfile />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/ChangePassword" element={<ChangePassword />} />
+              <Route path="/EditSeats" element={<EditSeats />} />
+              <Route path="/EditFlight" element={<EditFlight />} />
 
             </Routes>
           </Router>

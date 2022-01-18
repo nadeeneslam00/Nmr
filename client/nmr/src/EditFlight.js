@@ -42,14 +42,16 @@ const useStyles = makeStyles((theme) => ({
 }))
 const options = ['Create a merge commit', 'Squash and merge', 'Rebase and merge'];
 
-export default function UserSearch() {
+export default function EditFlight() {
     const classes = useStyles()
-
-    const [From, setFrom] = useState("");
-    const [To, setTo] = useState("");
+    const From = window.localStorage.getItem('EditFlightFrom');
+    console.log(From)
+    const To = window.localStorage.getItem('EditFlightTo');
+    console.log(To)
+    const FlightId=  window.localStorage.getItem('EditFlightId');
     const [numberofAdults, setNumberofAdults] = useState("");
     const [numberofChildren, setNumberofChildren] = useState("");
-    const [DepSearchResults, setDepSearchResults] = useState([]);
+    const [SearchResults, setSearchResults] = useState([]);
     const [DepartureDate, setDepartureDate] = useState('0000-00-00');
     const [ArrivalDate, setArrivalDate] = useState('0000-00-00');
     const [cabinClass, setCabinClass] = useState("");
@@ -70,169 +72,93 @@ export default function UserSearch() {
     };
     const headers = window.localStorage.getItem('token')
 
+    function handleSearch(e) {
 
-    function handleUserSearch(event) {
-        axios.post('http://localhost:5000/UserSearch', DepSearchDetails).then((response) => {
+        axios.post('http://localhost:5000/UserSearch', SearchDetails).then((response) => {
             console.log("arrived")
             console.log(response.data)
-            setDepSearchResults(response.data)
-            console.log(DepSearchResults)
+            setSearchResults(response.data)
+            
         }).catch(err => {
             console.log(err)
             console.log("i am here1")
         })
 
-        //    axios.post('http://localhost:5000/UserSearch', ReturnSearchDetails).then((response) => {
-        //       console.log("returns arrived")
-        //         console.log(response.data)
-        //         setReturnSearchResults(response.data)
-        //     }).catch(err => {
-        //         console.log(err)
-        //         console.log("i am here")
-        //     })
+
+
+
+
+
 
     }
 
-    function handleReturn(event) {
-        axios.post('http://localhost:5000/UserSearch', ReturnSearchDetails).then((response) => {
-            console.log("returns arrived")
-            console.log(response.data)
-            setReturnSearchResults(response.data)
-        }).catch(err => {
-            console.log(err)
-            console.log("i am here")
-        })
-    }
+
+
+
     function handleSeats(event) {
-        
-        // const DepFlightObj={
-        //     Id: DepFlight,
-        //     CabinClass: cabinClass,
-        //     Departure: true
-        // }
-       // console.log(DepFlightObj)
+
         window.localStorage.setItem('depFlightId', DepFlight)
         window.localStorage.setItem('depCabinClass', cabinClass)
-        // console.log(window.localStorage)
-        
-        // const RetFlightObj={
-         
-        //     Id: RetFlight,
-        //     CabinClass:cabinClass,
-        //     Departure: false
-        // }
+
         window.localStorage.setItem('retFlightId', RetFlight)
         window.localStorage.setItem('retCabinClass', cabinClass)
-    
+
         console.log(window.localStorage)
-    
-        window.location='/ViewSeats'
-    //     axios.post('http://localhost:5000/postTempChosenFlights', DepFlightObj,{
-    //         headers: {
-    //           token: headers,
-    //         },}).then((res) => {
-    //             console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-    //             console.log(res.data)
-    //             if(res.data === null){
-    //                 window.location='/Login'
-    //             } else {
-    //                 axios.post('http://localhost:5000/postTempChosenFlights', RetFlightObj,{
-    //     headers: {
-    //       token: headers,
-    //     },}).then((res) => {
-    //         console.log("yaaayy")
-    //         if(res.status === 401){
-    //             window.location='/Login'
-    //         }
-    
-    //     }).catch(err => {
-    //         console.log(err)
-    //         console.log("i am here")
 
-    // })
+        window.location = '/ViewSeats'
 
-    // window.location='/ViewSeats'
-    //             }
-    //         console.log("yaaayy")
-       
-    
-    //     }).catch(err => {
-    //         console.log(err)
-    //         console.log("i am here")
 
-    // })
 
-    
 
-}
+
+
+
+    }
 
 
     const [sendRequest, setSendRequest] = useState(false);
-    //const [numberofPassengers, setNumberofPassengers] = useState(0)
 
-    var numberofPassengers = (parseInt(numberofAdults, 10) + parseInt(numberofChildren, 10))
-    // let arrTime = new Date (req.body.From.ArrivalDate + "T" + req.body.From.ArrivalTime+":00.123Z");
-    // let DepTime = new Date (req.body.From.DepartureDate + "T" + req.body.From.DepartureTime+":00.123Z");
-    // let TripDuration = (parseInt(Math.abs(arrTime - DepTime )/ (1000*60*60)%24,10)+ "Hours" + parseInt(Math.abs(arrTime.getTime() - DepTime.getTime())/(1000*60)%60,10)+"Minutes");
 
-    const DepSearchDetails = {
+console.log(DepartureDate)
+
+    const SearchDetails = {
         From: From,
-        To: To,
+        To:To,
         FlightDate: new Date(DepartureDate),
-        numberofPassengers: numberofPassengers,
         cabinClass: cabinClass,
+        numberofPassengers: 0
 
     }
+    
     const ReturnSearchDetails = {
-        From: To,
-        To: From,
-        FlightDate: new Date(ArrivalDate),
-        numberofPassengers: numberofPassengers,
-        cabinClass: cabinClass,
+
     }
 
     const StyledFormControlLabel = styled((props) => <FormControlLabel {...props} />)(
-  ({ theme, checked }) => ({
-    '.MuiFormControlLabel-label': checked && {
-      color: theme.palette.primary.main,
-    },
-  }),
-);
+        ({ theme, checked }) => ({
+            '.MuiFormControlLabel-label': checked && {
+                color: theme.palette.primary.main,
+            },
+        }),
+    );
     function MyFormControlLabel(props) {
         const radioGroup = useRadioGroup();
-      
+
         let checked = false;
-      
+
         if (radioGroup) {
             console.log(radioGroup.value)
-          checked = radioGroup.value === props.value;
+            checked = radioGroup.value === props.value;
 
         }
-      
+
         return <StyledFormControlLabel checked={checked} {...props} />;
-      }
+    }
     return (
         <div >
-            <h1>Search for a departure flight</h1>
-            <TextField
-                required
-                id="from"
-                label="From"
-                defaultValue=""
-                variant="filled"
-                name="flightnumber"
-                onChange={(e) => setFrom(e.target.value)}
-            />
-            <br />
-            <TextField
-                required
-                id="to"
-                label="To"
-                defaultValue=""
-                variant="filled"
-                onChange={(e) => setTo(e.target.value)}
-            />
-            <br />
+            <h1>Search for Available Flights</h1>
+
+
             <TextField
                 required
                 id="DepartureDate"
@@ -244,25 +170,7 @@ export default function UserSearch() {
             />
             <br />
 
-            <TextField
-                required
-                id="NumberofAdults"
-                label="Number of adults"
-                defaultValue=""
-                variant="filled"
-                onChange={(e) => setNumberofAdults(e.target.value)}
-            />
-            <br />
-            <TextField
-                required
-                id="NumberofChildren"
-                label="Number of Children"
 
-                defaultValue=""
-                variant="filled"
-                onChange={(e) => setNumberofChildren(e.target.value)}
-            />
-            <br />
 
             <FormControl sx={{ m: 1, minWidth: 130 }}>
                 <InputLabel id="cabinClass">Cabin class</InputLabel>
@@ -279,58 +187,11 @@ export default function UserSearch() {
             </FormControl>
             <br />
 
-            <h1>Search for a return flight</h1>
-
-            <TextField
-                required
-                id="ArrivalDate"
-                label="Return Date"
-                type="date"
-                defaultValue=""
-                variant="filled"
-                onChange={(e) => setArrivalDate(e.target.value)}
-            />
-            <br />
-            <TextField
-                required
-                id="NumberofAdults"
-                label="Number of adults"
-                defaultValue=""
-                variant="filled"
-                onChange={(e) => setNumberofAdults(e.target.value)}
-            />
-            <br />
-            <TextField
-                required
-                id="NumberofChildren"
-                label="Number of Children"
-                defaultValue=""
-                variant="filled"
-                onChange={(e) => setNumberofChildren(e.target.value)}
-            />
-            <br />
-
-            <FormControl sx={{ m: 1, minWidth: 130 }}>
-                <InputLabel id="cabinClass">Cabin class</InputLabel>
-                <Select
-                    labelId="cabinClass"
-                    id="cabinClass"
-                    value={cabinClass}
-                    label="Cabin class"
-                    onChange={handleChange}
-                >
-                    <MenuItem value={1}>Business</MenuItem>
-                    <MenuItem value={2}>Economy</MenuItem>
-                </Select>
-            </FormControl>
-            <br />
-
-
-
-            <Button onClick={handleUserSearch} variant="contained">Search
+            <Button onClick={handleSearch} variant="contained">Search
             </Button>
 
-            {DepSearchResults.length !== 0 ? DepSearchResults.map(flight => {
+            {SearchResults.length !== 0 ? SearchResults.map(flight => {
+               
                 return <div className="flights">
 
                     <h3>Possible departure flights</h3>
@@ -344,15 +205,14 @@ export default function UserSearch() {
                                     <li>From : {flight.From} </li>
                                     <li>To : {flight.To} </li>
                                     <li>Flight Number : {flight.FlightNumber} </li>
-                                   
+
 
                                 </ul>
                             </Typography>
                         </CardContent>
                         <CardActions>
-                            <Button onClick={handleReturn} variant="contained">Select return flight
-                            </Button>
-                            
+                           
+
                             <div>
                                 <Button
                                     id="demo-positioned-button"
@@ -381,22 +241,20 @@ export default function UserSearch() {
                                     <MenuItem onClick={handleClose}>Arrival Time : {flight.ArrivalTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Departure Time : {flight.DepartureTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Trip duration : {flight.TripDuration}</MenuItem>
-                                    
+
                                 </Menu>
-                               
+
                             </div>
-                            
-                            <FormGroup>
-                     <FormControlLabel control={<Checkbox defaultUnChecked  onChange={(e) => setDepFlight(flight.Id)} />} label="Select Flight" />
-                    </FormGroup>
+
+
                         </CardActions>
-                        
+
                     </Card>
 
 
 
                 </div>
-
+                
             }) : <h5></h5>
             }
 
@@ -410,9 +268,9 @@ export default function UserSearch() {
                                     <li>From : {flight.From} </li>
                                     <li>To : {flight.To} </li>
                                     <li>Flight Number : {flight.FlightNumber} </li>
-                              
-                                    
-                                    
+
+
+
 
 
                                 </ul>
@@ -453,12 +311,12 @@ export default function UserSearch() {
                                     <MenuItem onClick={handleClose}>Arrival Time : {flight.ArrivalTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Departure Time : {flight.DepartureTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Trip duration : {flight.TripDuration}</MenuItem>
-                                    
+
                                 </Menu>
                             </div>
                             <FormGroup>
-                     <FormControlLabel control={<Checkbox defaultUnChecked  onChange={(e) => setRetFlight(flight.Id)} />} label="Select Flight" />
-                    </FormGroup>
+                                <FormControlLabel control={<Checkbox defaultUnChecked onChange={(e) => setRetFlight(flight.Id)} />} label="Select Flight" />
+                            </FormGroup>
                         </CardActions>
                     </Card>
 
@@ -467,7 +325,7 @@ export default function UserSearch() {
             }) : <h5></h5>
 
             }
-            
+
         </div>
     )
 

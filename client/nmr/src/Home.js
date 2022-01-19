@@ -51,6 +51,7 @@ export default function Home(){
              
           }} variant="contained">log Out
           </Button>
+          
        
       </ButtonGroup>
     </Box>

@@ -44,16 +44,16 @@ const options = ['Create a merge commit', 'Squash and merge', 'Rebase and merge'
 
 export default function EditFlight() {
     const classes = useStyles()
-    const ReservationNo = window.localStorage.getItem('ReservationNo') 
+    const ReservationNo = window.localStorage.getItem('ReservationNo')
     const From = window.localStorage.getItem('EditFlightFrom');
     const oldSeats = window.localStorage.getItem('EditChosenSeats')
-    const Departure= window.localStorage.getItem('Departure')
-    
+    const Departure = window.localStorage.getItem('Departure')
+
     const EditCabinClass = window.localStorage.getItem('EditCabinClass');
 
     const To = window.localStorage.getItem('EditFlightTo');
 
-    const FlightId=  window.localStorage.getItem('EditFlightId');
+    const FlightId = window.localStorage.getItem('EditFlightId');
     const [numberofAdults, setNumberofAdults] = useState("");
     const [numberofChildren, setNumberofChildren] = useState("");
     const [SearchResults, setSearchResults] = useState([]);
@@ -83,7 +83,7 @@ export default function EditFlight() {
             console.log("arrived")
             console.log(response.data)
             setSearchResults(response.data)
-            
+
         }).catch(err => {
             console.log(err)
             console.log("i am here1")
@@ -111,23 +111,23 @@ export default function EditFlight() {
     }
 
 
- 
+
 
 
     const [sendRequest, setSendRequest] = useState(false);
 
 
-console.log(DepartureDate)
+    console.log(DepartureDate)
 
     const SearchDetails = {
         From: From,
-        To:To,
+        To: To,
         FlightDate: new Date(DepartureDate),
         cabinClass: cabinClass,
         numberofPassengers: 0
 
     }
-    
+
     const ReturnSearchDetails = {
 
     }
@@ -189,90 +189,90 @@ console.log(DepartureDate)
             </Button>
 
             {SearchResults.length !== 0 ? SearchResults.map(flight => {
-               
-                return <div className="flights">
+                if (flight.Id != FlightId) {
+                    return <div className="flights">
 
-                    <h3>Possible departure flights</h3>
+                        <h3>Possible departure flights</h3>
 
-                    <Card sx={{ minWidth: 20 }}>
-                        <CardContent>
+                        <Card sx={{ minWidth: 20 }}>
+                            <CardContent>
 
-                            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                                <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
 
-                                <ul >
-                                    <li>From : {flight.From} </li>
-                                    <li>To : {flight.To} </li>
-                                    <li>Flight Number : {flight.FlightNumber} </li>
+                                    <ul >
+                                        <li>From : {flight.From} </li>
+                                        <li>To : {flight.To} </li>
+                                        <li>Flight Number : {flight.FlightNumber} </li>
 
 
-                                </ul>
-                            </Typography>
-                        </CardContent>
-                        <CardActions>
-                           
+                                    </ul>
+                                </Typography>
+                            </CardContent>
+                            <CardActions>
 
-                            <div>
-                          
-                                <Button
-                                    id="demo-positioned-button"
-                                    aria-controls="demo-positioned-menu"
-                                    aria-haspopup="true"
-                                    aria-expanded={open ? 'true' : undefined}
-                                    onClick={handleClick}
-                                >
-                                    View Details
+
+                                <div>
+
+                                    <Button
+                                        id="demo-positioned-button"
+                                        aria-controls="demo-positioned-menu"
+                                        aria-haspopup="true"
+                                        aria-expanded={open ? 'true' : undefined}
+                                        onClick={handleClick}
+                                    >
+                                        View Details
+                                    </Button>
+                                    <Menu
+                                        id="demo-positioned-menu"
+                                        aria-labelledby="demo-positioned-button"
+                                        anchorEl={anchorEl}
+                                        open={open}
+                                        onClose={handleClose}
+                                        anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'left',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'left',
+                                        }}
+                                    >   <MenuItem onClick={handleClose}>Price : {flight.Price}</MenuItem>
+                                        <MenuItem onClick={handleClose}>Arrival Time : {flight.ArrivalTime}</MenuItem>
+                                        <MenuItem onClick={handleClose}>Departure Time : {flight.DepartureTime}</MenuItem>
+                                        <MenuItem onClick={handleClose}>Trip duration : {flight.TripDuration}</MenuItem>
+                                        <MenuItem onClick={handleClose}>Baggage Allowance : {flight.BaggageAllowance} bags</MenuItem>
+                                    </Menu>
+
+                                </div>
+                                <Button onClick={() => {
+                                    const confirmBox = window.confirm(
+                                        "Do you want to select this flight?"
+                                    )
+                                    if (confirmBox === true) {
+                                        window.localStorage.setItem('ReservationNo', ReservationNo)
+                                        window.localStorage.setItem('NewFlightId', flight.Id)
+                                        window.localStorage.setItem('NewFlightCabin', cabinClass)
+                                        window.localStorage.setItem('OldFlightId', FlightId)
+                                        window.localStorage.setItem('OldFlightCabin', EditCabinClass)
+                                        window.localStorage.setItem('oldSeats', oldSeats)
+                                        window.localStorage.setItem('Departure', Departure)
+                                        window.location = '/ViewEditSeats'
+
+
+
+                                    }
+
+                                }} variant="contained">Select Flight
                                 </Button>
-                                <Menu
-                                    id="demo-positioned-menu"
-                                    aria-labelledby="demo-positioned-button"
-                                    anchorEl={anchorEl}
-                                    open={open}
-                                    onClose={handleClose}
-                                    anchorOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'left',
-                                    }}
-                                    transformOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'left',
-                                    }}
-                                >   <MenuItem onClick={handleClose}>Price : {flight.Price}</MenuItem>
-                                    <MenuItem onClick={handleClose}>Arrival Time : {flight.ArrivalTime}</MenuItem>
-                                    <MenuItem onClick={handleClose}>Departure Time : {flight.DepartureTime}</MenuItem>
-                                    <MenuItem onClick={handleClose}>Trip duration : {flight.TripDuration}</MenuItem>
 
-                                </Menu>
+                            </CardActions>
 
-                            </div>
-                            <Button onClick={() => {
-                    const confirmBox = window.confirm(
-                        "Do you want to select this flight?"
-                    )
-                    if (confirmBox === true) {
-                        window.localStorage.setItem('ReservationNo',ReservationNo)
-                        window.localStorage.setItem('NewFlightId',flight.Id)
-                        window.localStorage.setItem('NewFlightCabin',cabinClass)
-                        window.localStorage.setItem('OldFlightId',FlightId)
-                        window.localStorage.setItem('OldFlightCabin',EditCabinClass)
-                        window.localStorage.setItem('oldSeats',oldSeats)
-                        window.localStorage.setItem('Departure',Departure)
-                        window.location='/ViewEditSeats'
-   
-                        
-
-                    }
-                
-                }} variant="contained">Select Flight
-                            </Button>
-
-                        </CardActions>
-
-                    </Card>
+                        </Card>
 
 
 
-                </div>
-                
+                    </div>
+                }
             }) : <h5></h5>
             }
 
@@ -298,7 +298,7 @@ console.log(DepartureDate)
                             </Typography>
                         </CardContent>
                         <CardActions>
-                          
+
 
                             <div>
                                 <Button
@@ -327,6 +327,7 @@ console.log(DepartureDate)
                                 >   <MenuItem onClick={handleClose}>Price : {flight.Price}</MenuItem>
                                     <MenuItem onClick={handleClose}>Arrival Time : {flight.ArrivalTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Departure Time : {flight.DepartureTime}</MenuItem>
+                                    <MenuItem onClick={handleClose}>Baggage Allowance : {flight.BaggageAllowance}</MenuItem>
                                     <MenuItem onClick={handleClose}>Trip duration : {flight.TripDuration}</MenuItem>
 
                                 </Menu>

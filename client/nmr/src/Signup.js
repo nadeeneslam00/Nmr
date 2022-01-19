@@ -87,6 +87,7 @@ export default function Signup() {
             console.log(res.data)
             if(res.status === 200){
             localStorage.setItem('token', res.data.accessToken);
+           
             console.log(res.data.username)
             window.location = '/UserSearch'
             }

@@ -685,7 +685,7 @@ app.post("/deleteReservation", authenticateToken, (req, res) => {
     console.log("HHHHHHNNNNNM")
     Obj.mail = result.Email
 
-    Reservation.findOne({ ReservationNo: req.body._id }).then(result => {
+    Reservation.deleteOne({ ReservationNo: req.body._id }).then(result => {
       console.log("LLLLLLLLLLNM")
       console.log(result)
       Obj.price = result.TotalPrice
@@ -721,199 +721,7 @@ app.post("/deleteReservation", authenticateToken, (req, res) => {
   })
 
 
-  app.post("/summaryReservationMail", (req, res) => {
-  const Obj = {}
-  console.log(req.body)
-    
-    User.findOne({ Name: req.body.name }).then(result1 => {
-    console.log("HHHHHHNNNNNM")
-    Obj.mail = result1.Email
 
-    Reservation.findOne({ Id: req.body._id }).then(result => {
-    
-      if(result == null){
-        res.send(err)
-        console.log("12345")
-      }
-      else{
-        console.log("DKHAL")
-      Obj.id=req.body._id
-      Obj.from = result.From
-      Obj.to = result.To
-      Obj.returnseat = result.RetSeatsStr
-      Obj.depseat = result.DepSeatsStr
-      Obj.depdate = result.DepartureDate
-      Obj.returndate = result.ReturnDate
-      Obj.depdeptime = result.DepDepTime
-      Obj.deparrtime = result.DepArrTime
-      Obj.retdeptime = result.RetDepTime
-      Obj.retarrtime = result.RetArrTime
-      Obj.totalprice = result.TotalPrice
-      Obj.cabindep = result.ChosenCabinDeparture
-      Obj.cabinret = result.ChosenCabinReturn
-      }
-      const transporter = nodemailer.createTransport("SMTP",{
-        port: 465,               // true for 465, false for other ports
-        host: "smtp.gmail.com",
-        auth: {
-          user: 'menna.shoulkamy@gmail.com',
-          pass: 'Menna1234',
-        },
-        secure: true,
-      });
-      const mailData = {
-        from: 'menna.shoulkamy@gmail.com',  // sender address
-        to: 'menyya2000@gmai.com',   // list of receivers
-        subject: 'Reservation Summary',
-        text: 'Reservation No:' + Obj.id + '' + 'From:' +Obj.from + '' + 'To:' +Obj.to + ''
-        + 'Return Seat(s):' + Obj.returnseat + ''   + 'Departure Seat(s):' +  Obj.depseat + ''
-        + 'Departure Date:' +  Obj.depdate+ ''+ 'Return Date' +  Obj.returndate+ ''
-        + 'Departure Flight Departure Time:' + Obj.depdeptime + ''+ 'Departure Flight Arrival Time:' +  Obj.deparrtime + ''
-        + 'Return Flight Departure Time:' + Obj.retdeptime  + ''+ 'Return Flight Arrival Time:' +  Obj.retarrtime + ''
-        + 'Total Price:' + Obj.totalprice + ''+ 'Cabin Departure:' +   Obj.cabindep+ ''
-        + 'Cabin Return:' + Obj.cabinret+ ''
-      };
-      transporter.sendMail(mailData, function (err, info) {
-        if (err)
-          console.log(err)
-        else
-          console.log(info);
-      });
-    }).then(err => {
-
-    })
- 
-  })
-
-});
-app.post("/summaryReservationMail", (req, res) => {
-  const Obj = {}
-  console.log(req.body)
-    
-   
-
-    Reservation.findOne({ Id: req.body._id }).then(result => {
-    
-      if(result == null){
-        res.send(err)
-        console.log("12345")
-      }
-      else{
-        console.log("DKHAL")
-      Obj.id=req.body._id
-      Obj.from = result.From
-      Obj.to = result.To
-      Obj.returnseat = result.RetSeatsStr
-      Obj.depseat = result.DepSeatsStr
-      Obj.depdate = result.DepartureDate
-      Obj.returndate = result.ReturnDate
-      Obj.depdeptime = result.DepDepTime
-      Obj.deparrtime = result.DepArrTime
-      Obj.retdeptime = result.RetDepTime
-      Obj.retarrtime = result.RetArrTime
-      Obj.totalprice = result.TotalPrice
-      Obj.cabindep = result.ChosenCabinDeparture
-      Obj.cabinret = result.ChosenCabinReturn
-      }
-      const transporter = nodemailer.createTransport("SMTP",{
-        port: 465,               // true for 465, false for other ports
-        host: "smtp.gmail.com",
-        auth: {
-          user: 'menna.shoulkamy@gmail.com',
-          pass: 'Menna1234',
-        },
-        secure: true,
-      });
-      const mailData = {
-        from: 'menna.shoulkamy@gmail.com',  // sender address
-        to: 'menyya2000@gmai.com',   // list of receivers
-        subject: 'Reservation Summary',
-        text: 'Reservation No:' + Obj.id + '' + 'From:' +Obj.from + '' + 'To:' +Obj.to + ''
-        + 'Return Seat(s):' + Obj.returnseat + ''   + 'Departure Seat(s):' +  Obj.depseat + ''
-        + 'Departure Date:' +  Obj.depdate+ ''+ 'Return Date' +  Obj.returndate+ ''
-        + 'Departure Flight Departure Time:' + Obj.depdeptime + ''+ 'Departure Flight Arrival Time:' +  Obj.deparrtime + ''
-        + 'Return Flight Departure Time:' + Obj.retdeptime  + ''+ 'Return Flight Arrival Time:' +  Obj.retarrtime + ''
-        + 'Total Price:' + Obj.totalprice + ''+ 'Cabin Departure:' +   Obj.cabindep+ ''
-        + 'Cabin Return:' + Obj.cabinret+ ''
-      };
-      transporter.sendMail(mailData, function (err, info) {
-        if (err)
-          console.log(err)
-        else
-          console.log(info);
-      });
-    }).then(err => {
-
-    })
- 
- 
-
-});
-  app.post("/summaryReservationMail", (req, res) => {
-    const Obj = {}
-    console.log(req.body)
-      
-      User.findOne({ Name: req.body.name }).then(result1 => {
-      console.log("HHHHHHNNNNNM")
-      Obj.mail = result1.Email
-  
-      Reservation.findOne({ Id: req.body._id }).then(result => {
-      
-        if(result == null){
-          res.send(err)
-          console.log("12345")
-        }
-        else{
-          console.log("DKHAL")
-        Obj.id=req.body._id
-        Obj.from = result.From
-        Obj.to = result.To
-        Obj.returnseat = result.RetSeatsStr
-        Obj.depseat = result.DepSeatsStr
-        Obj.depdate = result.DepartureDate
-        Obj.returndate = result.ReturnDate
-        Obj.depdeptime = result.DepDepTime
-        Obj.deparrtime = result.DepArrTime
-        Obj.retdeptime = result.RetDepTime
-        Obj.retarrtime = result.RetArrTime
-        Obj.totalprice = result.TotalPrice
-        Obj.cabindep = result.ChosenCabinDeparture
-        Obj.cabinret = result.ChosenCabinReturn
-        }
-        const transporter = nodemailer.createTransport("SMTP",{
-          port: 465,               // true for 465, false for other ports
-          host: "smtp.gmail.com",
-          auth: {
-            user: 'menna.shoulkamy@gmail.com',
-            pass: 'Menna1234',
-          },
-          secure: true,
-        });
-        const mailData = {
-          from: 'menna.shoulkamy@gmail.com',  // sender address
-          to: 'menyya2000@gmai.com',   // list of receivers
-          subject: 'Reservation Summary',
-          text: 'Reservation No:' + Obj.id + '' + 'From:' +Obj.from + '' + 'To:' +Obj.to + ''
-          + 'Return Seat(s):' + Obj.returnseat + ''   + 'Departure Seat(s):' +  Obj.depseat + ''
-          + 'Departure Date:' +  Obj.depdate+ ''+ 'Return Date' +  Obj.returndate+ ''
-          + 'Departure Flight Departure Time:' + Obj.depdeptime + ''+ 'Departure Flight Arrival Time:' +  Obj.deparrtime + ''
-          + 'Return Flight Departure Time:' + Obj.retdeptime  + ''+ 'Return Flight Arrival Time:' +  Obj.retarrtime + ''
-          + 'Total Price:' + Obj.totalprice + ''+ 'Cabin Departure:' +   Obj.cabindep+ ''
-          + 'Cabin Return:' + Obj.cabinret+ ''
-        };
-        transporter.sendMail(mailData, function (err, info) {
-          if (err)
-            console.log(err)
-          else
-            console.log(info);
-        });
-      }).then(err => {
-  
-      })
-   
-    })
-  
-  });
 
 
 });
@@ -1255,6 +1063,9 @@ app.post("/payForEdit", (req, res) => {
       }
     )
     }
+  else{
+   return res.json("User Page");
+  }
    
   })
 
@@ -1264,7 +1075,72 @@ app.post("/payForEdit", (req, res) => {
 
 
 
+app.post("/summaryReservationMail",authenticateToken, (req, res) => {
+  const Obj = {}
+  console.log(req.body)
+    
+  User.findOne({ Name: req.user.name }).then(result1 => {
+    console.log("HHHHHHNNNNNM")
+    Obj.mail = result1.Email
 
+    Reservation.findOne({ Id: req.body._id }).then(result => {
+    
+      if(result == null){
+        res.send(err)
+        console.log("12345")
+      }
+      else{
+        console.log("DKHAL")
+      Obj.id=result._id
+    
+      Obj.from = result.From
+      Obj.to = result.To
+      Obj.returnseat = result.RetSeatsStr
+      Obj.depseat = result.DepSeatsStr
+      Obj.depdate = result.DepartureDate
+      Obj.returndate = result.ReturnDate
+      Obj.depdeptime = result.DepDepTime
+      Obj.deparrtime = result.DepArrTime
+      Obj.retdeptime = result.RetDepTime
+      Obj.retarrtime = result.RetArrTime
+      Obj.totalprice = result.TotalPrice
+      Obj.cabindep = result.ChosenCabinDeparture
+      Obj.cabinret = result.ChosenCabinReturn
+      }
+      var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'menna.shoulkamy@gmail.com',
+          pass: 'Menna1234',
+        },
+        secure: true,
+      });
+      var mailOptions = {
+        from: 'menna.shoulkamy@gmail.com',  // sender address
+        to: Obj.mail,   // list of receivers
+        subject: '\nReservation Summary',
+        text: '\nReservation No:' + Obj.id + '' + '\nFrom:' +Obj.from + '' + '\nTo:' +Obj.to + ''
+        + '\nReturn Seat(s):' + Obj.returnseat + ''   + '\nDeparture Seat(s):' +  Obj.depseat + ''
+        + '\nDeparture Date:' +  Obj.depdate+ ''+ '\nReturn Date' +  Obj.returndate+ ''
+        + '\nDeparture Flight Departure Time:' + Obj.depdeptime + ''+ '\nDeparture Flight Arrival Time:' +  Obj.deparrtime + ''
+        + '\nReturn Flight Departure Time:' + Obj.retdeptime  + ''+ '\nReturn Flight Arrival Time:' +  Obj.retarrtime + ''
+        + '\nTotal Price:' + Obj.totalprice + ''+ '\nCabin Departure:' +   Obj.cabindep+ ''
+        + '\nCabin Return:' + Obj.cabinret+ ''
+      };
+      transporter.sendMail(mailOptions, function (err, info) {
+        if (err)
+          console.log(err)
+        else
+          console.log(info);
+      });
+    }).then(err => {
 
+    })
+ 
+ 
+
+});
+
+})
 
 

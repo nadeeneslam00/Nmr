@@ -239,9 +239,9 @@ export default function ViewEditSeats() {
 
                 <Button onClick={() => {
                     const confirmBox = window.confirm(
-                        ' Departure Flight Details:' +
+                        ' New Flight Details:' +
                         '                                              ' +
-                        ' Flight Number:' + depFlightNumber +
+                        ' Flight Number:' + NewFlightId +
                         '                                            ' +
                         'From:' + depFrom +
                         '                                           ' +
@@ -254,26 +254,9 @@ export default function ViewEditSeats() {
                         'Departure Time:' + depDepartureTime +
                         '                                                  ' +
                         'Trip Duration:' + depTripDuration +
-                        '                                                   ' +
+                        '                                                   ' 
 
-                        ' Return Flight Details:' +
-                        '                                                     ' +
-
-                        'Flight Number:' + retFlightNumber +
-                        '                                             ' +
-                        ' From:' + retFrom +
-                        '                               ' +
-                        'To:' + retTo +
-                        '                               ' +
-                        'FlightDate:' + retFlightDate +
-                        '                               ' +
-                        'Arrival Time:' + retArrivalTime +
-                        '                               ' +
-                        'Departure Time:' + retDepartureTime +
-                        '                               ' +
-                        'Trip Duration:' + retTripDuration
-
-
+                      
 
 
 

@@ -57,6 +57,9 @@ const flightSchema = new Schema({
   },
   Price:{
     type:Number
+  },
+  BaggageAllowance:{
+    type:Number
   }
 
 }, { timestamps: true });

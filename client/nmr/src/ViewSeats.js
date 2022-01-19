@@ -342,8 +342,7 @@ setVis("visible")
 
                 <Button onClick={() => {
                     const confirmBox = window.confirm(
-                        ' Departure Flight Details:' +
-                        '                                              ' +
+                        ' Departure Flight Details:' + '                                           '+
                         ' Flight Number:' + depFlightNumber +
                         '                                            ' +
                         'From:' + depFrom +

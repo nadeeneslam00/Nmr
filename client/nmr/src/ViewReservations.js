@@ -125,7 +125,7 @@ export default function ViewReservations() {
                           
 
 
-                            }} variant="contained">Edit Departure Flight Date
+                            }} variant="contained">Change Departure Flight 
                             </Button>
                             <Button onClick={(e) => {
                                 window.localStorage.setItem('ReservationNo', reservation._id)
@@ -150,7 +150,7 @@ export default function ViewReservations() {
                                 window.location = '/EditFlight'
 
 
-                            }} variant="contained">Edit Return Flight Date
+                            }} variant="contained">Change Return Flight 
                             </Button>
                             <Button onClick={() => {
                     const confirmBox = window.confirm(
@@ -159,7 +159,7 @@ export default function ViewReservations() {
                     if (confirmBox === true) {
                         console.log("DELETE")
                         console.log(reservation._id)
-                        axios.post('http://localhost:5000/summaryReservationMail', {ReservationNo:reservation._id},{
+                        axios.post('http://localhost:5000/deleteReservation', {ReservationNo:reservation._id},{
                             headers: {
                               token: headers,
                             },}
@@ -175,9 +175,35 @@ export default function ViewReservations() {
                 }} variant="contained">Delete Reservation
                 </Button>
 
+                <Button onClick={() => {
+                    
+                     
+                        console.log(reservation._id)
+                        axios.post('http://localhost:5000/summaryReservationMail', {ReservationNo:reservation._id},{
+                            headers: {
+                              token: headers,
+                            },}
+                            ).then(() => {
+                            console.log("yaaayy")
+                        
+                
+                        }).catch(err => {
+                            console.log(err)
+                            console.log("i am here")
+                        })
+                    
+                }} variant="contained">Email Itinerary
+                </Button>
 
 
 
+                <Button onClick={() => {
+                    
+                     
+                    window.location='/Profile'
+                
+            }} variant="contained">Done
+            </Button>
 
                         </CardActions>
 

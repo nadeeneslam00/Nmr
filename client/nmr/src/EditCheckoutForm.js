@@ -102,9 +102,10 @@ console.log("uesss")
             const newCabin = window.localStorage.getItem('newCabin')
             const newChosenSeats = window.localStorage.getItem('newChosenSeats')
 
-
+console.log("waiting")
             let resJson = await stripeTokenHandler(result.token)
-            console.log(resJson.error)
+            console.log(resJson.status)
+            if(resJson.status!= null){
             if (resJson.status === 'succeeded') {
                 console.log('SUCCESS PAYMENT')
                 setError('SUCCESS PAYMENT')
@@ -151,13 +152,50 @@ console.log("uesss")
                 setOpen(true)
 
 
-            } else {
-                console.log('error', resJson.raw.message)
-                severityVar = 'warning'
-                setError(resJson.raw.message)
-                setOpen(true)
             }
-           
+        }
+        else{
+            console.log("no payment")
+           // console.log('error', resJson.raw.message)
+            severityVar = 'warning'
+            axios.post('http://localhost:5000/EditFlight', {
+                reservationNo: reservationNo,
+                oldFlightId: oldFlightId,
+                oldFlightCabin: oldFlightCabin,
+                oldSeats: oldSeats,
+                newFlightId: newFlightId,
+                newFrom: newFrom,
+                newTo: newTo,
+                newFlightDate: newFlightDate,
+                departure: departure,
+                newDepTime: newDepTime,
+                newArrTime: newArrTime,
+                newFlightPrice: newFlightPrice,
+                newCabin: newCabin,
+                newChosenSeats: newChosenSeats
+            }, {
+                headers: {
+                    token: headers,
+                },
+            }
+            ).then(() => {
+
+                console.log("yaaayy")
+                setOpen(true)
+
+            }).catch(err => {
+                setOpen(true)
+                console.log(err)
+                console.log("i am here")
+            })
+            setTimeout(() => {
+                handleClose()
+                console.log('Timer done!')
+                window.location = './ViewReservations'
+            }, 2000)
+
+            setOpen1(true)
+        }
 
             console.log(resJson.paid)
         }

@@ -10,12 +10,18 @@
 
 ### Screenshots:
 ![Login Page]( https://ibb.co/PQhgDMV)
+
 ![sign up]( https://ibb.co/GHQLY7d)
+
 ![search for a flight]( https://ibb.co/jTxsrhg)
-[after searching] (https://ibb.co/XYMFkLs)
-[Update Profile] (https://ibb.co/2Nyt10Q)
-[view reservations] (https://ibb.co/V396qyL)
-[change password]( https://ibb.co/ySW6PTz)
+
+![after searching] (https://ibb.co/XYMFkLs)
+
+![Update Profile] (https://ibb.co/2Nyt10Q)
+
+![view reservations] (https://ibb.co/V396qyL)
+
+![change password]( https://ibb.co/ySW6PTz)
 
 ### Framwork:
 

@@ -7,6 +7,10 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { useState, useEffect } from "react";
 import { blue } from '@mui/material/colors';
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import CheckoutForm from './CheckoutForm'
+const stripePromise = loadStripe('pk_test_51KJgsUGPL5oMjwemODPzJ0YtMTpHYf3sBLGH8o6xM369z5SbgqnzqIPw6uwJRmceHl2IRPzswcSpmL3icfwVbct100Aces5NdK');
 const useStyles = makeStyles((theme) => ({
     colorBlue: {}
     ,
@@ -28,7 +32,7 @@ export default function ViewSeats() {
     const selectedSeatsRet = {}
     const depFlight = window.localStorage.getItem('depFlightId')
     const depFlightCabin = window.localStorage.getItem('depCabinClass')
-    
+
     const retFlight = window.localStorage.getItem('retFlightId')
     const retFlightCabin = window.localStorage.getItem('retCabinClass')
     const [depFlightId, setDepFlightId] = useState(0);
@@ -53,7 +57,9 @@ export default function ViewSeats() {
     const [retPrice, setRetPrice] = useState(-1);
     const [depTripDuration, setDepTripDuration] = useState("");
     const [retTripDuration, setRetTripDuration] = useState("");
+    const [vis, setVis] = useState("hidden");
     const headers = window.localStorage.getItem('token')
+    
 
     //const retFlight = {}
     // const [depFlight, setDepFlight] = useState({});
@@ -85,76 +91,103 @@ export default function ViewSeats() {
         console.log(e.target.innerHTML.charAt(0))
     }
     function handleSelect(e) {
-        const resrvation = {
-            DepId:depFlight,
-            RetId:retFlight,
-            From: depFrom,
-            To: depTo,
-            DepartureDate: depFlightDate,
-            ReturnDate: retFlightDate,
-            DepDepTime: depDepartureTime,
-            DepArrTime: depArrivalTime,
-            RetDepTime: retDepartureTime,
-            RetArrTime: retArrivalTime,
-            TotalPrice: depPrice + retPrice,
-            ChosenCabinDeparture: depCabinClass,
-            ChosenSeatDeparture: selectedBussinessSeatsDep,
-            ChosenCabinReturn: retCabinClass,
-            ChosenSeatReturn: selectedBussinessSeatsRet
-
-
+        console.log(headers)
+        if (headers === "null") {
+            console.log("yay")
+            window.location = '/Login1'
         }
-        selectedSeatsDep.Id = depFlight
-        selectedSeatsDep.selectedBussinessSeats = selectedBussinessSeatsDep
-        selectedSeatsDep.CabinClass = depCabinClass
+        else {
+            var TotalPrice=depPrice + retPrice
+            window.localStorage.setItem('DepId',depFlight)
+            window.localStorage.setItem('RetId',retFlight)
+            window.localStorage.setItem('From',depFrom)
+            window.localStorage.setItem('To',depTo)
+            window.localStorage.setItem('DepartureDate',depFlightDate)
+            window.localStorage.setItem('ReturnDate',retFlightDate)
+            window.localStorage.setItem('DepDepTime',depDepartureTime)
+            window.localStorage.setItem('DepArrTime',depArrivalTime)
+            window.localStorage.setItem('RetDepTime',retDepartureTime)
+            window.localStorage.setItem('RetArrTime',retArrivalTime)
+            window.localStorage.setItem('TotalPrice',TotalPrice)
+            window.localStorage.setItem('ChosenCabinDeparture',depCabinClass)
+            window.localStorage.setItem('ChosenSeatDeparture',selectedBussinessSeatsDep)
+            window.localStorage.setItem('ChosenCabinReturn',retCabinClass)
+            window.localStorage.setItem('ChosenSeatReturn',selectedBussinessSeatsRet)
+setVis("visible")
+            // const resrvation = {
+            //     DepId: depFlight,
+            //     RetId: retFlight,
+            //     From: depFrom,
+            //     To: depTo,
+            //     DepartureDate: depFlightDate,
+            //     ReturnDate: retFlightDate,
+            //     DepDepTime: depDepartureTime,
+            //     DepArrTime: depArrivalTime,
+            //     RetDepTime: retDepartureTime,
+            //     RetArrTime: retArrivalTime,
+            //     TotalPrice: depPrice + retPrice,
+            //     ChosenCabinDeparture: depCabinClass,
+            //     ChosenSeatDeparture: selectedBussinessSeatsDep,
+            //     ChosenCabinReturn: retCabinClass,
+            //     ChosenSeatReturn: selectedBussinessSeatsRet
 
 
-        selectedSeatsRet.Id = retFlight
-        selectedSeatsRet.selectedBussinessSeats = selectedBussinessSeatsRet
+            // }
+           // console.log(resrvation)
+         
+           // selectedSeatsDep.Id = depFlight
+           // selectedSeatsDep.selectedBussinessSeats = selectedBussinessSeatsDep
+           // selectedSeatsDep.CabinClass = depCabinClass
 
-        selectedSeatsRet.CabinClass = retCabinClass
 
-        console.log(resrvation)
-        axios.post('http://localhost:5000/reserve', resrvation, {
-            headers: {
-                token: headers,
-            },
+           // selectedSeatsRet.Id = retFlight
+           // selectedSeatsRet.selectedBussinessSeats = selectedBussinessSeatsRet
+
+           // selectedSeatsRet.CabinClass = retCabinClass
+
+            // console.log(resrvation)
+            // axios.post('http://localhost:5000/reserve', resrvation, {
+            //     headers: {
+            //         token: headers,
+            //     },
+            // }
+            // ).then(() => {
+            //     console.log("yaaayy")
+
+
+            // }).catch(err => {
+            //     console.log(err)
+            //     console.log("i am here")
+            // })
+            // console.log(selectedSeatsDep)
+            // axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsDep, {
+            //     headers: {
+            //         token: headers,
+            //     },
+            // }).then(() => {
+            //     console.log("yaaayy")
+
+
+            // }).catch(err => {
+            //     console.log(err)
+            //     console.log("i am here")
+            // })
+            // console.log(selectedSeatsRet)
+            // axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsRet, {
+            //     headers: {
+            //         token: headers,
+            //     },
+            // }).then(() => {
+            //     console.log("yaaayy")
+
+
+            // }).catch(err => {
+            //     console.log(err)
+            //     console.log("i am here")
+            // })
+
+           // window.location = '/ReservationAfterConfirm'
         }
-        ).then(() => {
-            console.log("yaaayy")
-
-
-        }).catch(err => {
-            console.log(err)
-            console.log("i am here")
-        })
-console.log(selectedSeatsDep)
-        axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsDep, {
-            headers: {
-                token: headers,
-            },
-        }).then(() => {
-            console.log("yaaayy")
-
-
-        }).catch(err => {
-            console.log(err)
-            console.log("i am here")
-        })
-        console.log(selectedSeatsRet)
-        axios.post('http://localhost:5000/selectBussinessSeats', selectedSeatsRet, {
-            headers: {
-                token: headers,
-            },
-        }).then(() => {
-            console.log("yaaayy")
-
-
-        }).catch(err => {
-            console.log(err)
-            console.log("i am here")
-        })
-        window.location = '/ReservationAfterConfirm'
     }
     function get(event) {
 
@@ -173,19 +206,20 @@ console.log(selectedSeatsDep)
         //     console.log(depFlight)
 
 
-      
+
         setDepFlightCabinClass(window.localStorage.getItem('depCabinClass'))
         console.log(depFlight)
         axios.post('http://localhost:5000/getBussinessSeats', {
             Id: depFlight,
             CabinClass: depFlightCabin
         }).then((response) => {
-            //Sconsole.log(response.data);
+            console.log(response.data);
             setSeatsArrDep(response.data.Seats)
             setDepFlightNumber(response.data.FlightNumber)
             setDepFrom(response.data.From)
             setDepTo(response.data.To)
             setDepFlightDate(response.data.FlightDate)
+            setDepPrice(response.data.Price)
             setDepArrivalTime(response.data.ArrivalTime)
             setDepDepartureTime(response.data.DepartureTime)
             setDepTripDuration(response.data.TripDuration)
@@ -224,6 +258,7 @@ console.log(selectedSeatsDep)
             setRetFlightNumber(response.data.FlightNumber)
             setRetFrom(response.data.From)
             setRetTo(response.data.To)
+            setRetPrice(response.data.Price)
             setRetFlightDate(response.data.FlightDate)
             setRetArrivalTime(response.data.ArrivalTime)
             setRetDepartureTime(response.data.DepartureTime)
@@ -352,6 +387,11 @@ console.log(selectedSeatsDep)
                     }
                 }}
                     variant="outlined">Select Seats</Button>
+                    <div style={{ visibility: vis }}>
+                <Elements stripe={stripePromise}>
+                    <CheckoutForm />
+                </Elements>
+                </div>
             </div>
 
         </div>

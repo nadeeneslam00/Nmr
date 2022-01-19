@@ -22,6 +22,8 @@ import Signup from "./Signup";
 import ChangePassword from "./ChangePassword";
 import EditSeats from "./EditSeats";
 import EditFlight from "./EditFlight";
+import ViewEditSeats from "./ViewEditSeats";
+
 class App extends Component {
   render() {
     return (
@@ -34,6 +36,7 @@ class App extends Component {
             <Routes>
             <Route path="/" element={<Home1 />} />
             <Route path="/Home1" element={<Home1 />} />
+            <Route path="/Home" element={<Home />} />
               <Route path="/createFlights" element={<CreateFlights />} />
               <Route path="/viewflights" element={<ViewFlights />} />
               <Route path="/updateFlights" element={<UpdateFlights />} />
@@ -52,6 +55,8 @@ class App extends Component {
               <Route path="/ChangePassword" element={<ChangePassword />} />
               <Route path="/EditSeats" element={<EditSeats />} />
               <Route path="/EditFlight" element={<EditFlight />} />
+              <Route path="/ViewEditSeats" element={<ViewEditSeats />} />
+            
 
             </Routes>
           </Router>

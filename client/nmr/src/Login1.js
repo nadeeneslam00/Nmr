@@ -20,18 +20,19 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import Link from '@mui/material/Link';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-  });
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 
 
 const classes = makeStyles((theme) => ({
-    root: {
-        width: '40%',
-        height: 40
-    }
+  root: {
+    width: '40%',
+    height: 40
+  }
 }))
 
 const options = ['Create a merge commit', 'Squash and merge', 'Rebase and merge'];
@@ -39,113 +40,130 @@ const options = ['Create a merge commit', 'Squash and merge', 'Rebase and merge'
 
 
 export default function Login() {
- 
-    const [open, setOpen] = React.useState(false);
-    const[username,setUsername]= useState("");
-    const[password,setPassword]= useState("");
-    const anchorRef = React.useRef(null);
-    const headers = window.localStorage.getItem('token')
 
-    const login = {
-        username: username,
-        password : password
-    
+  const [open, setOpen] = React.useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const anchorRef = React.useRef(null);
+  const headers = window.localStorage.getItem('token')
+
+  const login = {
+    username: username,
+    password: password
+
+  }
+  // console.log(login)
+
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
-    // console.log(login)
 
-    const handleClick = () => {
-        setOpen(true);
-      };
+    setOpen(false);
+  };
 
-      const handleClose = (event, reason) => {
-        if (reason === 'clickaway') {
-          return;
+  function handleLogin(event) {
+
+    axios.post('http://localhost:5000/login', login,).then((res) => {
+
+      console.log(res.status)
+      console.log(res.data)
+      if (res.data === "Incorrect Password") {
+        console.log("wrong password")
+        setOpen(true)
+      }
+      else {
+        console.log(res.data)
+        if (res.data === "User not found") {
+          console.log("User not found")
+          setOpen(true)
+        } else {
+          localStorage.setItem('token', res.data.accessToken);
+        if(res.data.Admin){
+          window.location = '/Home'
         }
-    
-        setOpen(false);
-      };
+        else{
+          window.location = '/UserSearch'
+        }
+        }
 
-    function handleLogin(event) {
-     
-        axios.post('http://localhost:5000/login',login, ).then((res) => {
+      }
 
-            console.log(res.status)
-            console.log(res.data)
-            if(res.data === "Incorrect Password"){
-               console.log("wrong password")
-              setOpen(true) 
-            }
-            else{
-              if(res.data === "User not found"){
-                console.log("User not found")
-                setOpen(true) 
-              }else{
-              localStorage.setItem('token', res.data.accessToken);
-              console.log(res.data.username)
-              window.location = '/Profile'
-              }
-               
-            }
-           
 
-        }).catch(err => {
-            
-            console.log(err)
-            console.log("i am here")
-            
-        })
-    }
-  
-  
-    return (
-        <div>
-            <h1>Login</h1>
-            <div className={classes.root}>
-                <TextField
-                    required
-                    id = "Username"
-                    label="Username"
-                    defaultValue=""
-                    variant="filled"
-                    name="id"
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-                <TextField
-                    required
-                    type="password"
-                    id="Password"
-                    label="Password"
-                    defaultValue=""
-                    variant="filled"
-                    name="flightnumber"
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <br />
-                <br />
-                <br />
-            
-                <Button onClick={() => {
-                  
-                  
-                        handleLogin()
-                   
-                }} variant="contained">Login
-                </Button>
+    }).catch(err => {
 
-            </div>
-            <Stack spacing={2} sx={{ width: '100%' }}>
-      {/* <Button variant="outlined" onClick={handleClick}>
+      console.log(err)
+      console.log("i am here")
+
+    })
+  }
+
+
+  return (
+    <div>
+      <h1>Login</h1>
+      <div className={classes.root}>
+        <TextField
+          required
+          id="Username"
+          label="Username"
+          defaultValue=""
+          variant="filled"
+          name="id"
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <TextField
+          required
+          type="password"
+          id="Password"
+          label="Password"
+          defaultValue=""
+          variant="filled"
+          name="flightnumber"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <br />
+        <br/>
+        <Link
+          component="button"
+          variant="body2"
+          onClick={() => {
+           window.location='/Signup'
+          }}
+        >
+          Do not have an account? Sign up here!
+        </Link>
+        <br/>
+        <br/>
+
+
+        <Button onClick={() => {
+
+
+          handleLogin()
+
+        }} variant="contained">Login
+        </Button>
+
+      </div>
+      <Stack spacing={2} sx={{ width: '100%' }}>
+        {/* <Button variant="outlined" onClick={handleClick}>
         Open success snackbar
       </Button> */}
-      <Snackbar open={open} autoHideDuration={1200} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-          wrong username or password
-        </Alert>
-      </Snackbar>
-    </Stack>
-</div>
+        <Snackbar open={open} autoHideDuration={1200} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+            wrong username or password
+          </Alert>
+        </Snackbar>
+      </Stack>
+
+    </div>
 
 
-    )
+  )
 
 }

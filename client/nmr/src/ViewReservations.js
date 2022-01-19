@@ -120,6 +120,7 @@ export default function ViewReservations() {
                                 window.localStorage.setItem('EditFlightTo',reservation.To)
                                 window.localStorage.setItem('EditCabinClass', reservation.ChosenCabinDeparture)
                                 window.localStorage.setItem('EditChosenSeats', reservation.ChosenSeatDeparture)
+                                window.localStorage.setItem('Departure',1)
                                 window.location = '/EditFlight'
                           
 
@@ -145,11 +146,35 @@ export default function ViewReservations() {
                                 window.localStorage.setItem('EditFlightTo',reservation.From)
                                 window.localStorage.setItem('EditCabinClass', reservation.ChosenCabinReturn)
                                 window.localStorage.setItem('EditChosenSeats', reservation.ChosenSeatReturn)
+                                window.localStorage.setItem('Departure',0)
                                 window.location = '/EditFlight'
 
 
                             }} variant="contained">Edit Return Flight Date
                             </Button>
+                            <Button onClick={() => {
+                    const confirmBox = window.confirm(
+                        "Do you really want to delete this Reservation?"
+                    )
+                    if (confirmBox === true) {
+                        console.log("DELETE")
+                        console.log(reservation._id)
+                        axios.post('http://localhost:5000/summaryReservationMail', {ReservationNo:reservation._id},{
+                            headers: {
+                              token: headers,
+                            },}
+                            ).then(() => {
+                            console.log("yaaayy")
+                        
+                
+                        }).catch(err => {
+                            console.log(err)
+                            console.log("i am here")
+                        })
+                    }
+                }} variant="contained">Delete Reservation
+                </Button>
+
 
 
 

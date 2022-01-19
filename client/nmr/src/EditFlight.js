@@ -44,10 +44,15 @@ const options = ['Create a merge commit', 'Squash and merge', 'Rebase and merge'
 
 export default function EditFlight() {
     const classes = useStyles()
+    const ReservationNo = window.localStorage.getItem('ReservationNo') 
     const From = window.localStorage.getItem('EditFlightFrom');
-    console.log(From)
+    const oldSeats = window.localStorage.getItem('EditChosenSeats')
+    const Departure= window.localStorage.getItem('Departure')
+    
+    const EditCabinClass = window.localStorage.getItem('EditCabinClass');
+
     const To = window.localStorage.getItem('EditFlightTo');
-    console.log(To)
+
     const FlightId=  window.localStorage.getItem('EditFlightId');
     const [numberofAdults, setNumberofAdults] = useState("");
     const [numberofChildren, setNumberofChildren] = useState("");
@@ -94,18 +99,8 @@ export default function EditFlight() {
 
 
 
+    function handleDelete(event) {
 
-    function handleSeats(event) {
-
-        window.localStorage.setItem('depFlightId', DepFlight)
-        window.localStorage.setItem('depCabinClass', cabinClass)
-
-        window.localStorage.setItem('retFlightId', RetFlight)
-        window.localStorage.setItem('retCabinClass', cabinClass)
-
-        console.log(window.localStorage)
-
-        window.location = '/ViewSeats'
 
 
 
@@ -114,6 +109,9 @@ export default function EditFlight() {
 
 
     }
+
+
+ 
 
 
     const [sendRequest, setSendRequest] = useState(false);
@@ -214,6 +212,7 @@ console.log(DepartureDate)
                            
 
                             <div>
+                          
                                 <Button
                                     id="demo-positioned-button"
                                     aria-controls="demo-positioned-menu"
@@ -245,7 +244,26 @@ console.log(DepartureDate)
                                 </Menu>
 
                             </div>
+                            <Button onClick={() => {
+                    const confirmBox = window.confirm(
+                        "Do you want to select this flight?"
+                    )
+                    if (confirmBox === true) {
+                        window.localStorage.setItem('ReservationNo',ReservationNo)
+                        window.localStorage.setItem('NewFlightId',flight.Id)
+                        window.localStorage.setItem('NewFlightCabin',cabinClass)
+                        window.localStorage.setItem('OldFlightId',FlightId)
+                        window.localStorage.setItem('OldFlightCabin',EditCabinClass)
+                        window.localStorage.setItem('oldSeats',oldSeats)
+                        window.localStorage.setItem('Departure',Departure)
+                        window.location='/ViewEditSeats'
+   
+                        
 
+                    }
+                
+                }} variant="contained">Select Flight
+                            </Button>
 
                         </CardActions>
 
@@ -280,8 +298,7 @@ console.log(DepartureDate)
                             </Typography>
                         </CardContent>
                         <CardActions>
-                            <Button onClick={handleSeats} variant="contained">Choose Seats
-                            </Button>
+                          
 
                             <div>
                                 <Button

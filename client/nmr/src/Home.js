@@ -43,6 +43,15 @@ export default function Home(){
         <Button onClick={handleUpdate}>Update Existing Flights</Button>
         <Button onClick={handleDelete}>Delete Existing Flights</Button>
         <Button onClick={handleSearch}>Search For Specific Flights</Button>
+        <Button onClick={() => {
+                  
+                  
+                  localStorage.setItem('token', null);
+                  window.location='/Home1'
+             
+          }} variant="contained">log Out
+          </Button>
+       
       </ButtonGroup>
     </Box>
     

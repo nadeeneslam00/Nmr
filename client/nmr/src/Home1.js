@@ -38,10 +38,18 @@ export default function Home(){
           </Button>
           <Button onClick={() => {
                   
-                  
+                  window.localStorage.setItem('token', null);
                   window.location = '/UserSearch'
              
           }} variant="contained">SEARCH FLIGHTS
+          </Button>
+
+          <Button onClick={() => {
+                  
+                  
+                  window.location = '/Signup'
+             
+          }} variant="contained">SIGN UP
           </Button>
     
     </div>

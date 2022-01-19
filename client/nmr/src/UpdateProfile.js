@@ -109,7 +109,14 @@ export default function UpdateProfile() {
      <br />
         <br/>
         <br/>
-       
+        <Button onClick={() => {
+                  
+                  
+                  //localStorage.setItem('token', null);
+                  window.location='/ChangePassword'
+             
+          }} >Change Password
+          </Button>
           <Button  onClick={handleUpdate} variant="contained">Update Profile
           </Button>
          

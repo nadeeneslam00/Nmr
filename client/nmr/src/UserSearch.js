@@ -23,6 +23,7 @@ import Radio from '@mui/material/Radio';
 import FormGroup from '@mui/material/FormGroup';
 
 import Checkbox from '@mui/material/Checkbox';
+// var vis = ''
 
 const bull = (
     <Box
@@ -32,7 +33,6 @@ const bull = (
         •
     </Box>
 );
-
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -52,13 +52,18 @@ export default function UserSearch() {
     const [DepSearchResults, setDepSearchResults] = useState([]);
     const [DepartureDate, setDepartureDate] = useState('0000-00-00');
     const [ArrivalDate, setArrivalDate] = useState('0000-00-00');
-    const [cabinClass, setCabinClass] = useState("");
+    const [DepCabinClass, setDepCabinClass] = useState("");
+    const [RetCabinClass, setRetCabinClass] = useState("");
     const [ReturnSearchResults, setReturnSearchResults] = useState([]);
     const [Price, setPrice] = useState(-1);
     const [DepFlight, setDepFlight] = useState(-1);
     const [RetFlight, setRetFlight] = useState(-1);
-    const handleChange = (event) => {
-        setCabinClass(event.target.value);
+    const [vis, setVis] = useState('visible');
+    const handleDepChange = (event) => {
+        setDepCabinClass(event.target.value);
+    };
+    const handleRetChange = (event) => {
+        setRetCabinClass(event.target.value);
     };
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
@@ -103,68 +108,77 @@ export default function UserSearch() {
             console.log("i am here")
         })
     }
+    useEffect(() => {
+        console.log("nadyom", headers)
+        if (headers === 'null') {
+            setVis('hidden')
+        }
+
+        console.log(vis)
+
+    }, [])
     function handleSeats(event) {
-        
+
         // const DepFlightObj={
         //     Id: DepFlight,
         //     CabinClass: cabinClass,
         //     Departure: true
         // }
-       // console.log(DepFlightObj)
+        // console.log(DepFlightObj)
         window.localStorage.setItem('depFlightId', DepFlight)
-        window.localStorage.setItem('depCabinClass', cabinClass)
+        window.localStorage.setItem('depCabinClass', DepCabinClass)
         // console.log(window.localStorage)
-        
+
         // const RetFlightObj={
-         
+
         //     Id: RetFlight,
         //     CabinClass:cabinClass,
         //     Departure: false
         // }
         window.localStorage.setItem('retFlightId', RetFlight)
-        window.localStorage.setItem('retCabinClass', cabinClass)
-    
+        window.localStorage.setItem('retCabinClass', RetCabinClass)
+
         console.log(window.localStorage)
-    
-        window.location='/ViewSeats'
-    //     axios.post('http://localhost:5000/postTempChosenFlights', DepFlightObj,{
-    //         headers: {
-    //           token: headers,
-    //         },}).then((res) => {
-    //             console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-    //             console.log(res.data)
-    //             if(res.data === null){
-    //                 window.location='/Login'
-    //             } else {
-    //                 axios.post('http://localhost:5000/postTempChosenFlights', RetFlightObj,{
-    //     headers: {
-    //       token: headers,
-    //     },}).then((res) => {
-    //         console.log("yaaayy")
-    //         if(res.status === 401){
-    //             window.location='/Login'
-    //         }
-    
-    //     }).catch(err => {
-    //         console.log(err)
-    //         console.log("i am here")
 
-    // })
+        window.location = '/ViewSeats'
+        //     axios.post('http://localhost:5000/postTempChosenFlights', DepFlightObj,{
+        //         headers: {
+        //           token: headers,
+        //         },}).then((res) => {
+        //             console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+        //             console.log(res.data)
+        //             if(res.data === null){
+        //                 window.location='/Login'
+        //             } else {
+        //                 axios.post('http://localhost:5000/postTempChosenFlights', RetFlightObj,{
+        //     headers: {
+        //       token: headers,
+        //     },}).then((res) => {
+        //         console.log("yaaayy")
+        //         if(res.status === 401){
+        //             window.location='/Login'
+        //         }
 
-    // window.location='/ViewSeats'
-    //             }
-    //         console.log("yaaayy")
-       
-    
-    //     }).catch(err => {
-    //         console.log(err)
-    //         console.log("i am here")
+        //     }).catch(err => {
+        //         console.log(err)
+        //         console.log("i am here")
 
-    // })
+        // })
 
-    
+        // window.location='/ViewSeats'
+        //             }
+        //         console.log("yaaayy")
 
-}
+
+        //     }).catch(err => {
+        //         console.log(err)
+        //         console.log("i am here")
+
+        // })
+
+
+
+    }
 
 
     const [sendRequest, setSendRequest] = useState(false);
@@ -180,7 +194,7 @@ export default function UserSearch() {
         To: To,
         FlightDate: new Date(DepartureDate),
         numberofPassengers: numberofPassengers,
-        cabinClass: cabinClass,
+        cabinClass: DepCabinClass,
 
     }
     const ReturnSearchDetails = {
@@ -188,31 +202,72 @@ export default function UserSearch() {
         To: From,
         FlightDate: new Date(ArrivalDate),
         numberofPassengers: numberofPassengers,
-        cabinClass: cabinClass,
+        cabinClass: RetCabinClass,
     }
 
     const StyledFormControlLabel = styled((props) => <FormControlLabel {...props} />)(
-  ({ theme, checked }) => ({
-    '.MuiFormControlLabel-label': checked && {
-      color: theme.palette.primary.main,
-    },
-  }),
-);
+        ({ theme, checked }) => ({
+            '.MuiFormControlLabel-label': checked && {
+                color: theme.palette.primary.main,
+            },
+        }),
+    );
     function MyFormControlLabel(props) {
         const radioGroup = useRadioGroup();
-      
+
         let checked = false;
-      
+
         if (radioGroup) {
             console.log(radioGroup.value)
-          checked = radioGroup.value === props.value;
+            checked = radioGroup.value === props.value;
 
         }
-      
+
         return <StyledFormControlLabel checked={checked} {...props} />;
-      }
+    }
     return (
         <div >
+
+            <div>
+                <Button style={{ visibility: vis }} onClick={() => {
+
+
+                    window.location = '/Profile'
+
+                }} variant="contained"> Profile
+                </Button>
+                <Button style={{ visibility: vis }} onClick={() => {
+
+
+                    window.location = '/ViewReservations'
+
+                }} variant="contained">View All Reservations
+                </Button>
+                <Button style={{ visibility: vis }} onClick={() => {
+
+
+                    window.location = '/DeleteReservation'
+
+                }} variant="contained">Delete A Reservation
+                </Button>
+                <Button style={{ visibility: vis }} onClick={() => {
+
+
+                    window.location = '/UserSearch'
+
+                }} variant="contained">Search For Flight
+                </Button>
+
+                <Button style={{ visibility: vis }} onClick={() => {
+
+
+                    window.localStorage.setItem('token', null);
+                    window.location = '/Home'
+
+                }} variant="contained">log Out
+                </Button>
+
+            </div>
             <h1>Search for a departure flight</h1>
             <TextField
                 required
@@ -269,9 +324,9 @@ export default function UserSearch() {
                 <Select
                     labelId="cabinClass"
                     id="cabinClass"
-                    value={cabinClass}
+                    value={DepCabinClass}
                     label="Cabin class"
-                    onChange={handleChange}
+                    onChange={handleDepChange}
                 >
                     <MenuItem value={1}>Business</MenuItem>
                     <MenuItem value={2}>Economy</MenuItem>
@@ -315,9 +370,9 @@ export default function UserSearch() {
                 <Select
                     labelId="cabinClass"
                     id="cabinClass"
-                    value={cabinClass}
+                    value={RetCabinClass}
                     label="Cabin class"
-                    onChange={handleChange}
+                    onChange={handleRetChange}
                 >
                     <MenuItem value={1}>Business</MenuItem>
                     <MenuItem value={2}>Economy</MenuItem>
@@ -344,7 +399,7 @@ export default function UserSearch() {
                                     <li>From : {flight.From} </li>
                                     <li>To : {flight.To} </li>
                                     <li>Flight Number : {flight.FlightNumber} </li>
-                                   
+
 
                                 </ul>
                             </Typography>
@@ -352,7 +407,7 @@ export default function UserSearch() {
                         <CardActions>
                             <Button onClick={handleReturn} variant="contained">Select return flight
                             </Button>
-                            
+
                             <div>
                                 <Button
                                     id="demo-positioned-button"
@@ -381,16 +436,16 @@ export default function UserSearch() {
                                     <MenuItem onClick={handleClose}>Arrival Time : {flight.ArrivalTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Departure Time : {flight.DepartureTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Trip duration : {flight.TripDuration}</MenuItem>
-                                    
+
                                 </Menu>
-                               
+
                             </div>
-                            
+
                             <FormGroup>
-                     <FormControlLabel control={<Checkbox defaultUnChecked  onChange={(e) => setDepFlight(flight.Id)} />} label="Select Flight" />
-                    </FormGroup>
+                                <FormControlLabel control={<Checkbox defaultUnChecked onChange={(e) => setDepFlight(flight.Id)} />} label="Select Flight" />
+                            </FormGroup>
                         </CardActions>
-                        
+
                     </Card>
 
 
@@ -410,9 +465,9 @@ export default function UserSearch() {
                                     <li>From : {flight.From} </li>
                                     <li>To : {flight.To} </li>
                                     <li>Flight Number : {flight.FlightNumber} </li>
-                              
-                                    
-                                    
+
+
+
 
 
                                 </ul>
@@ -453,12 +508,12 @@ export default function UserSearch() {
                                     <MenuItem onClick={handleClose}>Arrival Time : {flight.ArrivalTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Departure Time : {flight.DepartureTime}</MenuItem>
                                     <MenuItem onClick={handleClose}>Trip duration : {flight.TripDuration}</MenuItem>
-                                    
+
                                 </Menu>
                             </div>
                             <FormGroup>
-                     <FormControlLabel control={<Checkbox defaultUnChecked  onChange={(e) => setRetFlight(flight.Id)} />} label="Select Flight" />
-                    </FormGroup>
+                                <FormControlLabel control={<Checkbox defaultUnChecked onChange={(e) => setRetFlight(flight.Id)} />} label="Select Flight" />
+                            </FormGroup>
                         </CardActions>
                     </Card>
 
@@ -467,7 +522,7 @@ export default function UserSearch() {
             }) : <h5></h5>
 
             }
-            
+
         </div>
     )
 

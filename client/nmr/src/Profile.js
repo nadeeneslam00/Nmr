@@ -68,13 +68,7 @@ export default function Profile(){
              
           }} variant="contained">View All Reservations
           </Button>
-          <Button onClick={() => {
-                  
-                  
-                  window.location = '/DeleteReservation'
-             
-          }} variant="contained">Delete A Reservation
-          </Button>
+      
           <Button onClick={() => {
                   
                   
@@ -86,18 +80,11 @@ export default function Profile(){
                   
                   
                   localStorage.setItem('token', null);
-                  window.location='/Home'
+                  window.location='/Home1'
              
           }} variant="contained">log Out
           </Button>
-          <Button onClick={() => {
-                  
-                  
-                  //localStorage.setItem('token', null);
-                  window.location='/ChangePassword'
-             
-          }} variant="contained">Change Password
-          </Button>
+       
        
        
             {/* <h1>{flights[0]}</h1> */}

@@ -7,6 +7,8 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const Stripe=require('stripe');
+const stripe= Stripe('sk_test_51KJgsUGPL5oMjwemnSwucaUplrbTB5DtufCo63HRXcFIpohpcKFvC63F8QAplgUl62gOkITLEJ1mlqSuAFOA7CWj00zQWUa8Dv')
 
 const app = express();
 const cors = require('cors');
@@ -338,6 +340,7 @@ app.post('/signup', async (req, res) => {
       })
     } else {
       console.log('METHOD ACTIVE')
+
       var newUser = new User({
         FirstName: req.body.firstName,
         LastName: req.body.lastName,
@@ -358,10 +361,21 @@ app.post('/signup', async (req, res) => {
             message: err,
           }))
         } else {
+          const user = { name: name};
+          console.log(user)
+          const accessToken = generateAccessToken(user)
+          const refreshToken = jwt.sign(user, "" + process.env.REFRESH_TOKEN_SECERT)
+          refreshTokens.push(refreshToken)
+          console.log("yaayyy")
+         
+          console.log("yaayyy")
+          console.log(accessToken)
           console.log("SUCCESS");
-          return res.json(user)
+          return res.json({ accessToken: accessToken, refreshToken: refreshToken })
+         
         }
       })
+   
     }
   } catch (err) {
     console.log(err);
@@ -395,7 +409,7 @@ app.post('/login', (req, res) => {
         const refreshToken = jwt.sign(user, "" + process.env.REFRESH_TOKEN_SECERT)
         refreshTokens.push(refreshToken)
         console.log("yaayyy")
-        res.json({ accessToken: accessToken, refreshToken: refreshToken })
+        res.json({ accessToken: accessToken, refreshToken: refreshToken, Admin:result.Admin })
         console.log("yaayyy")
         console.log(accessToken)
 
@@ -475,6 +489,7 @@ app.post("/getBussinessSeats", (req, res) => {
         From: result.From,
         To: result.To,
         FlightDate: result.FlightDate,
+        Price:result.Price,
         ArrivalTime: result.ArrivalTime,
         DepartureTime: result.DepartureTime,
         Seats: result.BusinessSeats,
@@ -492,6 +507,7 @@ app.post("/getBussinessSeats", (req, res) => {
         From: result.From,
         To: result.To,
         FlightDate: result.FlightDate,
+        Price:result.Price,
         ArrivalTime: result.ArrivalTime,
         DepartureTime: result.DepartureTime,
         Seats: result.EconomySeats,
@@ -548,16 +564,25 @@ app.post("/getBussinessSeats", (req, res) => {
 
 app.post("/reserve", authenticateToken, (req, res) => {
   console.log(req.body)
+  const ChosenSeatDepartureArray = req.body.ChosenSeatDeparture.split(",");
+  const ChosenSeatReturnArray = req.body.ChosenSeatReturn.split(",");
+  console.log(ChosenSeatDepartureArray)
+  console.log(ChosenSeatReturnArray)
+
+
   var str1 = ""
-  for (let index = 0; index < req.body.ChosenSeatDeparture.length; index++) {
-    if (req.body.ChosenSeatDeparture[index] === "true")
+  for (let index = 0; index < ChosenSeatDepartureArray.length; index++) {
+    console.log("got in loop")
+    if (ChosenSeatDepartureArray[index] == 'true')
       str1 = str1 + " " + index + " " + " " + ","
   }
   var str2 = ""
-  for (let index = 0; index < req.body.ChosenSeatReturn.length; index++) {
-    if (req.body.ChosenSeatReturn[index] === "true")
+  for (let index = 0; index <ChosenSeatReturnArray.length; index++) {
+    if (ChosenSeatReturnArray[index] == 'true')
       str2 = str2 + " " + index + " " + " " + ","
   }
+  console.log("str1")
+  console.log(str1)
   const resrvation = [{
 
     Name: req.user.name,
@@ -585,7 +610,7 @@ app.post("/reserve", authenticateToken, (req, res) => {
   console.log("final testing")
   Reservation.insertMany(resrvation).then(result => {
     console.log(result)
-    res.send("success")
+    res.send(result[0])
   }).then(err => {
 
   })
@@ -696,20 +721,200 @@ app.post("/deleteReservation", authenticateToken, (req, res) => {
   })
 
 
-  Reservation.findOneAndDelete({ ReservationNo: (req.body._id) }).then(result => {
-    //console.log(req.body)
-    console.log("yaayyy")
+  app.post("/summaryReservationMail", (req, res) => {
+  const Obj = {}
+  console.log(req.body)
+    
+    User.findOne({ Name: req.body.name }).then(result1 => {
+    console.log("HHHHHHNNNNNM")
+    Obj.mail = result1.Email
 
+    Reservation.findOne({ Id: req.body._id }).then(result => {
+    
+      if(result == null){
+        res.send(err)
+        console.log("12345")
+      }
+      else{
+        console.log("DKHAL")
+      Obj.id=req.body._id
+      Obj.from = result.From
+      Obj.to = result.To
+      Obj.returnseat = result.RetSeatsStr
+      Obj.depseat = result.DepSeatsStr
+      Obj.depdate = result.DepartureDate
+      Obj.returndate = result.ReturnDate
+      Obj.depdeptime = result.DepDepTime
+      Obj.deparrtime = result.DepArrTime
+      Obj.retdeptime = result.RetDepTime
+      Obj.retarrtime = result.RetArrTime
+      Obj.totalprice = result.TotalPrice
+      Obj.cabindep = result.ChosenCabinDeparture
+      Obj.cabinret = result.ChosenCabinReturn
+      }
+      const transporter = nodemailer.createTransport("SMTP",{
+        port: 465,               // true for 465, false for other ports
+        host: "smtp.gmail.com",
+        auth: {
+          user: 'menna.shoulkamy@gmail.com',
+          pass: 'Menna1234',
+        },
+        secure: true,
+      });
+      const mailData = {
+        from: 'menna.shoulkamy@gmail.com',  // sender address
+        to: 'menyya2000@gmai.com',   // list of receivers
+        subject: 'Reservation Summary',
+        text: 'Reservation No:' + Obj.id + '' + 'From:' +Obj.from + '' + 'To:' +Obj.to + ''
+        + 'Return Seat(s):' + Obj.returnseat + ''   + 'Departure Seat(s):' +  Obj.depseat + ''
+        + 'Departure Date:' +  Obj.depdate+ ''+ 'Return Date' +  Obj.returndate+ ''
+        + 'Departure Flight Departure Time:' + Obj.depdeptime + ''+ 'Departure Flight Arrival Time:' +  Obj.deparrtime + ''
+        + 'Return Flight Departure Time:' + Obj.retdeptime  + ''+ 'Return Flight Arrival Time:' +  Obj.retarrtime + ''
+        + 'Total Price:' + Obj.totalprice + ''+ 'Cabin Departure:' +   Obj.cabindep+ ''
+        + 'Cabin Return:' + Obj.cabinret+ ''
+      };
+      transporter.sendMail(mailData, function (err, info) {
+        if (err)
+          console.log(err)
+        else
+          console.log(info);
+      });
+    }).then(err => {
 
-  }).catch(err => {
-
-    console.log(parseInt(req.body.ReservationNo, 10))
-    console.log(req.body)
-    console.log(err)
-    console.log("nay")
-
-
+    })
+ 
   })
+
+});
+app.post("/summaryReservationMail", (req, res) => {
+  const Obj = {}
+  console.log(req.body)
+    
+   
+
+    Reservation.findOne({ Id: req.body._id }).then(result => {
+    
+      if(result == null){
+        res.send(err)
+        console.log("12345")
+      }
+      else{
+        console.log("DKHAL")
+      Obj.id=req.body._id
+      Obj.from = result.From
+      Obj.to = result.To
+      Obj.returnseat = result.RetSeatsStr
+      Obj.depseat = result.DepSeatsStr
+      Obj.depdate = result.DepartureDate
+      Obj.returndate = result.ReturnDate
+      Obj.depdeptime = result.DepDepTime
+      Obj.deparrtime = result.DepArrTime
+      Obj.retdeptime = result.RetDepTime
+      Obj.retarrtime = result.RetArrTime
+      Obj.totalprice = result.TotalPrice
+      Obj.cabindep = result.ChosenCabinDeparture
+      Obj.cabinret = result.ChosenCabinReturn
+      }
+      const transporter = nodemailer.createTransport("SMTP",{
+        port: 465,               // true for 465, false for other ports
+        host: "smtp.gmail.com",
+        auth: {
+          user: 'menna.shoulkamy@gmail.com',
+          pass: 'Menna1234',
+        },
+        secure: true,
+      });
+      const mailData = {
+        from: 'menna.shoulkamy@gmail.com',  // sender address
+        to: 'menyya2000@gmai.com',   // list of receivers
+        subject: 'Reservation Summary',
+        text: 'Reservation No:' + Obj.id + '' + 'From:' +Obj.from + '' + 'To:' +Obj.to + ''
+        + 'Return Seat(s):' + Obj.returnseat + ''   + 'Departure Seat(s):' +  Obj.depseat + ''
+        + 'Departure Date:' +  Obj.depdate+ ''+ 'Return Date' +  Obj.returndate+ ''
+        + 'Departure Flight Departure Time:' + Obj.depdeptime + ''+ 'Departure Flight Arrival Time:' +  Obj.deparrtime + ''
+        + 'Return Flight Departure Time:' + Obj.retdeptime  + ''+ 'Return Flight Arrival Time:' +  Obj.retarrtime + ''
+        + 'Total Price:' + Obj.totalprice + ''+ 'Cabin Departure:' +   Obj.cabindep+ ''
+        + 'Cabin Return:' + Obj.cabinret+ ''
+      };
+      transporter.sendMail(mailData, function (err, info) {
+        if (err)
+          console.log(err)
+        else
+          console.log(info);
+      });
+    }).then(err => {
+
+    })
+ 
+ 
+
+});
+  app.post("/summaryReservationMail", (req, res) => {
+    const Obj = {}
+    console.log(req.body)
+      
+      User.findOne({ Name: req.body.name }).then(result1 => {
+      console.log("HHHHHHNNNNNM")
+      Obj.mail = result1.Email
+  
+      Reservation.findOne({ Id: req.body._id }).then(result => {
+      
+        if(result == null){
+          res.send(err)
+          console.log("12345")
+        }
+        else{
+          console.log("DKHAL")
+        Obj.id=req.body._id
+        Obj.from = result.From
+        Obj.to = result.To
+        Obj.returnseat = result.RetSeatsStr
+        Obj.depseat = result.DepSeatsStr
+        Obj.depdate = result.DepartureDate
+        Obj.returndate = result.ReturnDate
+        Obj.depdeptime = result.DepDepTime
+        Obj.deparrtime = result.DepArrTime
+        Obj.retdeptime = result.RetDepTime
+        Obj.retarrtime = result.RetArrTime
+        Obj.totalprice = result.TotalPrice
+        Obj.cabindep = result.ChosenCabinDeparture
+        Obj.cabinret = result.ChosenCabinReturn
+        }
+        const transporter = nodemailer.createTransport("SMTP",{
+          port: 465,               // true for 465, false for other ports
+          host: "smtp.gmail.com",
+          auth: {
+            user: 'menna.shoulkamy@gmail.com',
+            pass: 'Menna1234',
+          },
+          secure: true,
+        });
+        const mailData = {
+          from: 'menna.shoulkamy@gmail.com',  // sender address
+          to: 'menyya2000@gmai.com',   // list of receivers
+          subject: 'Reservation Summary',
+          text: 'Reservation No:' + Obj.id + '' + 'From:' +Obj.from + '' + 'To:' +Obj.to + ''
+          + 'Return Seat(s):' + Obj.returnseat + ''   + 'Departure Seat(s):' +  Obj.depseat + ''
+          + 'Departure Date:' +  Obj.depdate+ ''+ 'Return Date' +  Obj.returndate+ ''
+          + 'Departure Flight Departure Time:' + Obj.depdeptime + ''+ 'Departure Flight Arrival Time:' +  Obj.deparrtime + ''
+          + 'Return Flight Departure Time:' + Obj.retdeptime  + ''+ 'Return Flight Arrival Time:' +  Obj.retarrtime + ''
+          + 'Total Price:' + Obj.totalprice + ''+ 'Cabin Departure:' +   Obj.cabindep+ ''
+          + 'Cabin Return:' + Obj.cabinret+ ''
+        };
+        transporter.sendMail(mailData, function (err, info) {
+          if (err)
+            console.log(err)
+          else
+            console.log(info);
+        });
+      }).then(err => {
+  
+      })
+   
+    })
+  
+  });
+
 
 });
 app.get("/getFlight", (req, res) => {
@@ -769,6 +974,119 @@ app.post("/selectBussinessSeats", authenticateToken, (req, res) => {
 
 
 });
+app.post("/EditFlight", authenticateToken, (req, res) => {
+  console.log(req.body)
+  console.log("EDITEDDD")
+  const oldSeatsArray = req.body.oldSeats.split(",");
+  Flight.findOne({
+    Id: req.body.oldFlightId
+  }).then((res) => {
+    console.log(res)
+    if (req.body.oldFlightCabin == "1") {
+    for (let i = 0; i < oldSeatsArray.length; i++) {
+  
+      if (oldSeatsArray[i] == "true") {
+        res.BusinessSeats[i] = "false"
+        res.BusinessNumofSeats++
+      }
+    }
+  }
+  else{
+    for (let i = 0; i < oldSeatsArray.length; i++) {
+  
+      if (oldSeatsArray[i] == "true") {
+        res.EconomySeats[i] = "false"
+        res.EconomyNumofSeats++
+      }
+    }
+  }
+var priceDifference= req.body.newFlightPrice - res.Price
+    Reservation.findById(req.body.reservationNo).then((result) => {
+      const newChosenSeatsArray = req.body.newChosenSeats.split(",");
+      var str1 = ""
+      for (let index = 0; index < newChosenSeatsArray.length; index++) {
+        if (newChosenSeatsArray[index] === "true")
+          str1 = str1 + " " + index + " " + " " + ","
+      }
+      if (req.body.departure == "1") {
+        result.DepSeatsStr = str1
+        result.ChosenSeatDeparture = req.body.newChosenSeats
+        result.DepId= req.body.newFlightId
+        result.DepartureDate= req.body.newFlightDate
+        result.DepDepTime= req.body.newDepTime
+        result.DepArrTime= req.body.newArrTime
+        result.ChosenCabinDeparture=req.body.newCabin
+  
+      }
+      else {
+        result.RetSeatsStr = str1
+        result.ChosenSeatReturn = req.body.newChosenSeats
+        result.RetId= req.body.newFlightId
+        result.ReturnDate= req.body.newFlightDate
+        result.RetDepTime= req.body.newDepTime
+        result.RetArrTime= req.body.newArrTime
+        result.ChosenCabinReturn=req.body.newCabin
+      }
+      result.TotalPrice= result.TotalPrice+ priceDifference
+  
+      result.save().then((result) => {
+        console.log(result);
+      }).catch((e) => {
+        console.log(e);
+      })
+  
+    })
+
+    
+    res.save().then((res1) => {
+      console.log(res1);
+    }).catch((e) => {
+      console.log(e);
+    })
+
+  }).catch(err => {
+
+  
+  })
+
+  Flight.findOne({Id:req.body.newFlightId}).then((result1)=>{
+    if (req.body.newCabin == "1") {
+    for (let i = 0; i < req.body.newChosenSeats.length; i++) {
+      console.log("got here")
+ 
+      if (req.body.newChosenSeats[i] == 'true') {
+        console.log("I")
+        console.log(i)
+        result1.BusinessSeats[i] = "true"
+        result1.BusinessNumofSeats--
+      }
+
+    }
+  }
+    else{
+      for (let i = 0; i < req.body.newChosenSeats.length; i++) {
+        console.log("got here")
+   
+        if (req.body.newChosenSeats[i] == 'true') {
+          console.log("I")
+          console.log(i)
+          result1.EconomySeats[i] = "true"
+          result1.EconomyNumofSeats--
+        }
+  
+      }
+    }
+    
+
+    result1.save().then((result2) => {
+      console.log(result2);
+    }).catch((e) => {
+      console.log(e);
+    })
+
+
+  })
+})
 
 app.post("/EditSeats", authenticateToken, (req, res) => {
   console.log("Final check")
@@ -885,6 +1203,62 @@ function generateAccessToken(user) {
 
 
 
+app.post("/payForBooking", (req, res) => {
+  console.log("UNIQUE BODY")
+  console.log(req.body)
+  let amountInt = parseInt(req.body.amount, 10)
+  stripe.charges.create(
+    {
+      amount: amountInt * 100,
+      currency: 'usd',
+      source: req.body.token,
+      description:
+        'Payment for a booking with the amount of ' + req.body.amount,
+    },
+    function (err, charge) {
+      if (err) {
+        console.log(err)
+      
+        return res.send(err)
+      }
+      console.log(charge)
+      return res.send(charge)
+    }
+  )
+})
+
+app.post("/payForEdit", (req, res) => {
+  console.log("UNIQUE EDIt")
+  console.log(req.body)
+  
+  Flight.findOne({Id:req.body.oldFlightId}).then((result)=>{
+
+    let amountInt =  parseInt(req.body.newPrice, 10) - result.Price
+    console.log(amountInt)
+    if(amountInt>0){
+    stripe.charges.create(
+      {
+        amount: amountInt * 100,
+        currency: 'usd',
+        source: req.body.token,
+        description:
+          'Payment for a booking with the amount of ' + req.body.amount,
+      },
+      function (err, charge) {
+        if (err) {
+          console.log(err)
+        
+          return res.send(err)
+        }
+        console.log(charge)
+        return res.send(charge)
+      }
+    )
+    }
+   
+  })
+
+})
 
 
 

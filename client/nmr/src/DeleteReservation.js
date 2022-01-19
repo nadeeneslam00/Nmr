@@ -54,7 +54,7 @@ export default function DeleteReservation() {
 
 
     function handleDelete(event) {
-        axios.post('http://localhost:5000/deleteReservation', deletedReservation,{
+        axios.post('http://localhost:5000/summaryReservationMail', deletedReservation,{
             headers: {
               token: headers,
             },}

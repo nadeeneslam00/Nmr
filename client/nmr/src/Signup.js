@@ -85,18 +85,19 @@ export default function Signup() {
         axios.post('http://localhost:5000/signup',signup, ).then((res) => {
             console.log(res.status)
             console.log(res.data)
-            if(res.status === 200){
-            localStorage.setItem('token', res.data.accessToken);
-           
-            console.log(res.data.username)
-            window.location = '/UserSearch'
-            }
-            else{
-               setOpen(true) 
+            if(res.data.message=='Username already exists, please sign in'){
+                setOpen(true) 
                
+            }else{
+            if(res.status === 200){
+                console.log(res.data.accessToken)
+            localStorage.setItem('token', res.data.accessToken);
+           console.log( localStorage.getItem('token'))
+            console.log(res.data.username)
+           window.location = '/UserSearch'
             }
-           
-
+         
+        }
         }).catch(err => {
             
             //console.log(err)
@@ -216,7 +217,7 @@ export default function Signup() {
       </Button> */}
       <Snackbar open={open} autoHideDuration={1200} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-          wrong username or password
+         Username already exists!
         </Alert>
       </Snackbar>
     </Stack>

@@ -324,19 +324,19 @@ app.post('/token', (req, res) => {
 
 app.post('/signup', async (req, res) => {
 
-  const email = req.body.email;
+const email=req.body.email;
   const password = req.body.password;
   const name = req.body.name;
   // console.log('METHOD ACTIVE')
   try {
     let user = await User.findOne({
-      Email: email
+      Name: name
     });
     if (user) {
       console.log("User already found");
       return res.json({
         statusCode: 0,
-        message: 'email already exists, please sign in',
+        message: 'Username already exists, please sign in',
       })
     } else {
       console.log('METHOD ACTIVE')

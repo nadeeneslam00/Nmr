@@ -11,6 +11,7 @@ export default function ReservationAfterConfirm() {
     const [DepSeats, setDepSeats] = useState("");
     const [RetSeats, setRetSeats] = useState("");
     const headers = window.localStorage.getItem('token')
+    console.log("ya ranaaaa")
     console.log(headers)
     useEffect(() => {
 

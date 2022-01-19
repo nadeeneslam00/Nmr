@@ -74,6 +74,7 @@ export default function UserSearch() {
         setAnchorEl(null);
     };
     const headers = window.localStorage.getItem('token')
+    console.log(headers)
 
 
     function handleUserSearch(event) {
@@ -262,7 +263,7 @@ export default function UserSearch() {
 
 
                     window.localStorage.setItem('token', null);
-                    window.location = '/Home'
+                    window.location = '/Home1'
 
                 }} variant="contained">log Out
                 </Button>

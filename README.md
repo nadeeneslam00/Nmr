@@ -9,21 +9,21 @@
 ### Code Style: Code style used in our website is standard.
 
 ### Screenshots:
-![Login Page]( https://ibb.co/PQhgDMV)
+![Login Page]( https://ibb.co/PQhgDMV )
 
-![sign up]( https://ibb.co/GHQLY7d)
+![sign up]( https://ibb.co/GHQLY7d )
 
 ![search for a flight]( https://ibb.co/jTxsrhg)
 
-![after searching] (https://ibb.co/XYMFkLs)
+![after searching] (https://ibb.co/XYMFkLs )
 
 ![Update Profile] (https://ibb.co/2Nyt10Q)
 
-![view reservations] (https://ibb.co/V396qyL)
+![view reservations] (https://ibb.co/V396qyL )
 
 ![change password]( https://ibb.co/ySW6PTz)
 
-### Framwork:
+### Framework:
 
 - Express
 - Mongo DB
@@ -107,3 +107,4 @@ The admin have the authority to delete a flight, view all reservations made by c
 ### Credits:
 
 ### License:
+
